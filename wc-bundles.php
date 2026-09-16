@@ -25,4 +25,6 @@ add_action('plugins_loaded', static function() {
     if (!class_exists('WooCommerce')) {
         return;
     }
+
+    require_once WC_BUNDLES_PLUGIN_PATH . 'product-type/register.php';
 }, 20);
