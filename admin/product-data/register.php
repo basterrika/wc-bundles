@@ -26,6 +26,7 @@ function wc_bundles_add_product_data_tab(array $tabs): array {
 
 add_action('woocommerce_product_data_panels', 'wc_bundles_render_bundle_items_panel');
 function wc_bundles_render_bundle_items_panel(): void {
+    /** @var WC_Product $product_object Current product set by WooCommerce's product-data metabox. */
     global $product_object;
 
     // Render an empty panel for other types so switching to Bundle works without a reload
