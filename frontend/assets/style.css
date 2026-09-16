@@ -379,8 +379,8 @@ div.product.wc-bundles .wc-bundles-purchase:disabled {
 
   .wc-bundles .summary.wc-bundles-summary {
     position: sticky;
-    top: var(--wc-bundles-sticky-top, 10rem);
-    max-height: calc(100dvh - var(--wc-bundles-sticky-top, 10rem) - 1rem);
+    top: var(--wc-bundles-sticky-top, 100px);
+    max-height: calc(100dvh - var(--wc-bundles-sticky-top, 100px) - 1rem);
     overflow-y: auto;
   }
 }
