@@ -68,6 +68,10 @@ function wc_bundles_render_product(): void {
     require_once WC_BUNDLES_PLUGIN_PATH . 'frontend/data.php';
     $data = wc_bundles_get_frontend_data($product);
 
+    if ($data['items']) {
+        wp_enqueue_script('wc-bundles-bar');
+    }
+
     if ($data['has_options']) {
         wp_enqueue_script('wc-bundles-frontend');
         wp_localize_script('wc-bundles-frontend', 'wcBundles', [
@@ -95,6 +99,14 @@ function wc_bundles_enqueue_frontend_assets(): void {
         WC_BUNDLES_PLUGIN_URL . 'frontend/assets/style.css',
         [],
         WC_BUNDLES_VERSION
+    );
+
+    wp_register_script(
+        'wc-bundles-bar',
+        WC_BUNDLES_PLUGIN_URL . 'frontend/assets/bar.js',
+        [],
+        WC_BUNDLES_VERSION,
+        ['in_footer' => true, 'strategy' => 'defer']
     );
 
     wp_register_script(

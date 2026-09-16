@@ -45,4 +45,10 @@ defined('ABSPATH') || exit;
     <?php do_action('woocommerce_after_single_product_summary'); ?>
 </div>
 
-<?php do_action('woocommerce_after_single_product'); ?>
+<?php
+
+if ($data['items']) {
+    require WC_BUNDLES_PLUGIN_PATH . 'frontend/templates/bar.php';
+}
+
+do_action('woocommerce_after_single_product');

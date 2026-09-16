@@ -1,5 +1,4 @@
 .wc-bundles {
-  container-type: inline-size;
   overflow-wrap: anywhere;
 }
 
@@ -287,7 +286,83 @@ div.product.wc-bundles .wc-bundles-purchase:disabled {
   border-color: #e8e8e8;
 }
 
-@container (min-width: 540px) {
+.wc-bundles-bar {
+  display: none;
+}
+
+@media (max-width: 767.98px) {
+  .wc-bundles-bar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+    padding: 15px 12px calc(15px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+    border-top: 1px solid rgb(0 0 0 / 10%);
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 10%);
+    transform: translate3d(0, 110%, 0);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.18s ease, opacity 0.18s ease, visibility 0s linear 0.18s;
+    contain: layout paint;
+    will-change: transform, opacity;
+  }
+
+  .wc-bundles-bar.is-visible {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.18s ease, opacity 0.18s ease, visibility 0s;
+  }
+
+  .wc-bundles-bar-visible {
+    padding-bottom: var(--wc-bundles-bar-height, 64px);
+  }
+
+  .wc-bundles-bar-total {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    color: rgb(0 0 0 / 70%);
+    font-size: 14px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .wc-bundles-bar .button {
+    margin: 0;
+    padding: 5px 15px;
+    border: 0;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .wc-bundles-bar .button:not(:disabled):hover {
+    opacity: 0.8;
+  }
+
+  .wc-bundles-bar .button:disabled {
+    background: #e8e8e8;
+    color: #000;
+    cursor: not-allowed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wc-bundles-bar,
+  .wc-bundles-bar .button {
+    transition: none;
+  }
+}
+
+@media (min-width: 576px) {
   div.product.wc-bundles .wc-bundles-header .product_title {
     font-size: 26px;
   }
@@ -297,7 +372,7 @@ div.product.wc-bundles .wc-bundles-purchase:disabled {
   }
 }
 
-@container (min-width: 960px) {
+@media (min-width: 768px) {
   .wc-bundles-layout {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.6fr);
   }

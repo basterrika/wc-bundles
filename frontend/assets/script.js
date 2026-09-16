@@ -14,6 +14,7 @@
     return;
   }
 
+  const totals = [total, ...document.querySelectorAll('.wc-bundles-bar-total')];
   const initialTotal = total.innerHTML;
   const items = Array.from(bundle.querySelectorAll('[data-summary-id]'), function prepareItem(element) {
     const summary = document.getElementById(element.dataset.summaryId);
@@ -47,6 +48,12 @@
   function setHtml(element, html) {
     if (element.innerHTML !== html) {
       element.innerHTML = html;
+    }
+  }
+
+  function setTotal(html) {
+    for (const element of totals) {
+      setHtml(element, html);
     }
   }
 
@@ -109,7 +116,7 @@
     }
 
     if (!Object.keys(selections).length) {
-      setHtml(total, initialTotal);
+      setTotal(initialTotal);
       return;
     }
 
@@ -162,13 +169,17 @@
         }
         setStatus(item, selection.message);
       }
-      setHtml(total, result.data.total_html);
+      setTotal(result.data.total_html);
     }
     catch (error) {
       if (controller !== request) {
         return;
       }
-      total.textContent = wcBundles.error;
+
+      for (const element of totals) {
+        element.textContent = wcBundles.error;
+      }
+
       retry.hidden = false;
       for (const item of items) {
         if (selections[item.element.dataset.productId]) {
