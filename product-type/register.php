@@ -2,6 +2,8 @@
 
 defined('ABSPATH') || exit;
 
+require_once WC_BUNDLES_PLUGIN_PATH . 'product-type/functions.php';
+
 add_filter('product_type_selector', static function($types) {
     $types['bundle'] = __('Bundle', 'wc-bundles');
 
