@@ -27,4 +27,8 @@ add_action('plugins_loaded', static function() {
     }
 
     require_once WC_BUNDLES_PLUGIN_PATH . 'product-type/register.php';
+
+    if (is_admin() && !wp_doing_ajax()) {
+        require_once WC_BUNDLES_PLUGIN_PATH . 'admin/init.php';
+    }
 }, 20);

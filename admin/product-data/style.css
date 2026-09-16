@@ -1,0 +1,29 @@
+#wc_bundles_items_data .wc-bundles-field {
+  padding: 16px 20px;
+}
+
+#wc_bundles_items_data label {
+  display: block;
+  float: none;
+  width: auto;
+  margin: 0 0 8px;
+  font-weight: 600;
+}
+
+#wc_bundles_items_data .wc-bundles-field > input:not([type="checkbox"]):not([type="radio"]),
+#wc_bundles_items_data .wc-bundles-field > select,
+#wc_bundles_items_data .wc-bundles-field > textarea,
+#wc_bundles_items_data .select2-container {
+  box-sizing: border-box;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+}
+
+#wc_bundles_items_data .description {
+  display: block;
+  clear: both;
+  margin: 8px 0 0;
+  padding: 0;
+  line-height: 1.5;
+}
