@@ -75,7 +75,7 @@ defined('ABSPATH') || exit;
         if ($item['is_variable']) {
             ?>
 
-            <p class="wc-bundles-availability" role="status" aria-atomic="true" hidden></p>
+            <p class="wc-bundles-availability" role="status" aria-atomic="true"></p>
 
             <?php
         }

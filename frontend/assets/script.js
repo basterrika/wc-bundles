@@ -53,8 +53,7 @@
   function setStatus(item, message) {
     item.message = message;
     item.availability.textContent = message;
-    item.availability.hidden = !message;
-    item.summary.textContent = [item.label, message].filter(Boolean).join(' · ') || item.summary.dataset.placeholder;
+    item.summary.textContent = item.label || item.summary.dataset.placeholder;
   }
 
   function setImages(item, image, thumbnail) {
@@ -158,7 +157,7 @@
           setImages(item, selection.image_html, selection.thumbnail_html);
         }
         else {
-          setHtml(item.price, '');
+          setHtml(item.price, item.initialPrice);
           setImages(item, item.initialImage, item.initialThumbnail);
         }
         setStatus(item, selection.message);
@@ -174,7 +173,7 @@
       for (const item of items) {
         if (selections[item.element.dataset.productId]) {
           delete item.element.dataset.variationId;
-          setHtml(item.price, '');
+          setHtml(item.price, item.initialPrice);
           setImages(item, item.initialImage, item.initialThumbnail);
           setStatus(item, wcBundles.error);
         }

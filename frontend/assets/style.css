@@ -235,6 +235,14 @@ div.product.wc-bundles .wc-bundles-description {
   margin: 0 0 16px;
 }
 
+div.product.wc-bundles .wc-bundles-availability {
+  min-height: 1.6em;
+  margin: 0.25rem 0 0;
+  color: #b32d2e;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 div.product.wc-bundles .wc-bundles-summary-title {
   margin: 0 0 4px;
   font-size: 11px;
