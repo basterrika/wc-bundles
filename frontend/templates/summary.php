@@ -43,12 +43,24 @@ defined('ABSPATH') || exit;
     ?>
 </ul>
 
-<div class="wc-bundles-total">
+<div class="wc-bundles-total" role="status" aria-atomic="true">
     <span class="wc-bundles-total-label"><?php esc_html_e('Bundle total', 'wc-bundles'); ?></span>
-    <span class="wc-bundles-total-value"><?php echo wp_kses_post($data['total_html']); ?></span>
+    <span class="wc-bundles-total-value"><?php echo wc_bundles_kses_html($data['total_html']); ?></span>
 </div>
 
-<?php do_action('woocommerce_before_add_to_cart_form'); ?>
+<?php
+
+if ($data['has_options']) {
+    ?>
+
+    <button class="wc-bundles-retry" type="button" hidden><?php esc_html_e('Try again', 'wc-bundles'); ?></button>
+
+    <?php
+}
+
+do_action('woocommerce_before_add_to_cart_form');
+
+?>
 
 <form class="cart wc-bundles-cart" action="<?php echo esc_url($data['form_action']); ?>" method="post" enctype="multipart/form-data">
     <?php do_action('woocommerce_before_add_to_cart_button'); ?>

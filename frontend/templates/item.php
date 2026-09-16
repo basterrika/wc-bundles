@@ -9,7 +9,7 @@ defined('ABSPATH') || exit;
 
 ?>
 
-<section id="wc-bundles-item-<?php echo esc_attr($item['id']); ?>" class="wc-bundles-item" aria-labelledby="wc-bundles-item-title-<?php echo esc_attr($item['id']); ?>" <?php if ($item['is_variable']) : ?>data-summary-id="wc-bundles-selection-<?php echo esc_attr($item['id']); ?>"<?php endif; ?>>
+<section id="wc-bundles-item-<?php echo esc_attr($item['id']); ?>" class="wc-bundles-item" data-product-id="<?php echo esc_attr($item['id']); ?>" aria-labelledby="wc-bundles-item-title-<?php echo esc_attr($item['id']); ?>" <?php if ($item['is_variable']) : ?>data-summary-id="wc-bundles-selection-<?php echo esc_attr($item['id']); ?>"<?php endif; ?>>
     <div class="wc-bundles-image">
         <?php echo $item['image_html']; ?>
     </div>
@@ -29,7 +29,7 @@ defined('ABSPATH') || exit;
         foreach ($item['attributes'] as $attribute) {
             ?>
 
-            <fieldset class="wc-bundles-attribute" data-label="<?php echo esc_attr($attribute['label']); ?>">
+            <fieldset class="wc-bundles-attribute" data-attribute="<?php echo esc_attr($attribute['name']); ?>" data-label="<?php echo esc_attr($attribute['label']); ?>">
                 <legend class="wc-bundles-attribute-label"><?php echo esc_html($attribute['label']); ?></legend>
                 <div class="wc-bundles-options">
                     <?php
@@ -59,15 +59,27 @@ defined('ABSPATH') || exit;
 
             <?php
 
-            if ($item['price_html']) {
+            if ($item['is_variable'] || $item['price_html']) {
                 ?>
 
-                <span class="wc-bundles-price"><?php echo wp_kses_post($item['price_html']); ?></span>
+                <span class="wc-bundles-price"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
 
                 <?php
             }
 
             ?>
         </div>
+
+        <?php
+
+        if ($item['is_variable']) {
+            ?>
+
+            <p class="wc-bundles-availability" role="status" aria-atomic="true" hidden></p>
+
+            <?php
+        }
+
+        ?>
     </div>
 </section>

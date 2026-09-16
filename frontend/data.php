@@ -3,6 +3,24 @@
 defined('ABSPATH') || exit;
 
 /**
+ * Sanitize bundle markup while preserving responsive images and price direction.
+ */
+function wc_bundles_kses_html(string $html): string {
+    static $allowed_html = null;
+
+    if ($allowed_html === null) {
+        $allowed_html = wp_kses_allowed_html('post');
+        $allowed_html['img']['srcset'] = true;
+        $allowed_html['img']['sizes'] = true;
+        $allowed_html['img']['decoding'] = true;
+        $allowed_html['img']['fetchpriority'] = true;
+        $allowed_html['bdi']['dir'] = true;
+    }
+
+    return wp_kses($html, $allowed_html);
+}
+
+/**
  * Prepare one render snapshot shared by the page and its summary callback.
  */
 function wc_bundles_get_frontend_data(WC_Product $product): array {
@@ -69,6 +87,7 @@ function wc_bundles_prepare_item(WC_Product $item): array {
             }
 
             $attributes[] = [
+                'name' => wc_variation_attribute_name($attribute->get_name()),
                 'label' => $is_taxonomy
                     ? ($attribute->get_taxonomy_object()->attribute_label ?? $attribute->get_name())
                     : $attribute->get_name(),

@@ -2,6 +2,12 @@
 
 defined('ABSPATH') || exit;
 
+add_action('wc_ajax_wc_bundles_selection', 'wc_bundles_load_selection');
+function wc_bundles_load_selection(): void {
+    require_once WC_BUNDLES_PLUGIN_PATH . 'frontend/selection.php';
+    wc_bundles_send_selection();
+}
+
 add_action('wp', 'wc_bundles_init_frontend');
 function wc_bundles_init_frontend(): void {
     if (!is_product() || is_feed() || post_password_required()) {
@@ -64,6 +70,12 @@ function wc_bundles_render_product(): void {
 
     if ($data['has_options']) {
         wp_enqueue_script('wc-bundles-frontend');
+        wp_localize_script('wc-bundles-frontend', 'wcBundles', [
+            'url' => WC_AJAX::get_endpoint('wc_bundles_selection'),
+            'bundleId' => $product->get_id(),
+            'error' => __('Could not check availability. Please try again.', 'wc-bundles'),
+            'unavailable' => __('This product is no longer available.', 'wc-bundles'),
+        ]);
     }
 
     require WC_BUNDLES_PLUGIN_PATH . 'frontend/templates/single-product.php';

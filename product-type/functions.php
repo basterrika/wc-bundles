@@ -30,6 +30,39 @@ function wc_bundles_get_items(WC_Product $product): array {
 }
 
 /**
+ * Find the matching variation only when all required options are selected.
+ *
+ * @param array $selection Posted attribute names and values.
+ *
+ * @throws Exception
+ */
+function wc_bundles_resolve_variation(WC_Product_Variable $product, array $selection): ?WC_Product_Variation {
+    $attributes = [];
+
+    foreach ($product->get_variation_attributes() as $name => $options) {
+        $key = wc_variation_attribute_name($name);
+        $value = $selection[$key] ?? null;
+
+        if (!is_string($value) || $value === '' || !in_array($value, $options, true)) {
+            return null;
+        }
+
+        $attributes[$key] = $value;
+    }
+
+    if (!$attributes) {
+        return null;
+    }
+
+    $id = WC_Data_Store::load('product')->find_matching_product_variation($product, $attributes);
+    $variation = $id ? wc_get_product($id) : false;
+
+    return $variation instanceof WC_Product_Variation && $variation->get_parent_id() === $product->get_id()
+        ? $variation
+        : null;
+}
+
+/**
  * Sum one of each component.
  *
  * @param list<WC_Product> $items Component products or selected variations.
