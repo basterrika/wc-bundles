@@ -7,36 +7,41 @@
 
 defined('ABSPATH') || exit;
 
-$submitted_ids = $_POST['wc_bundles_item_ids'] ?? [];
+$taken = [];
 
-if (!is_array($submitted_ids)) {
-    return;
-}
+// Paid first, so a product submitted in both lists stays paid
+foreach (['wc_bundles_item_ids', 'wc_bundles_free_item_ids'] as $field) {
+    $submitted_ids = $_POST[$field] ?? [];
 
-$item_ids = wp_parse_id_list(array_filter(wp_unslash($submitted_ids), 'is_numeric'));
-$valid_ids = [];
-
-if ($item_ids) {
-    _prime_post_caches($item_ids);
-}
-
-foreach ($item_ids as $item_id) {
-    if (!$item_id || $item_id === $product->get_id()) {
-        continue;
+    if (!is_array($submitted_ids)) {
+        return;
     }
 
-    $item = wc_get_product($item_id);
+    $item_ids = wp_parse_id_list(array_filter(wp_unslash($submitted_ids), 'is_numeric'));
+    $valid_ids = [];
 
-    if (!$item || !$item->is_type(['simple', 'variable']) || !wc_products_array_filter_readable($item)) {
-        continue;
+    if ($item_ids) {
+        _prime_post_caches($item_ids);
     }
 
-    $valid_ids[] = $item_id;
-}
+    foreach ($item_ids as $item_id) {
+        if (!$item_id || $item_id === $product->get_id() || in_array($item_id, $taken, true)) {
+            continue;
+        }
 
-if ($valid_ids) {
-    $product->update_meta_data('_wc_bundles_item_ids', $valid_ids);
-}
-else {
-    $product->delete_meta_data('_wc_bundles_item_ids');
+        $item = wc_get_product($item_id);
+
+        if (!$item || !$item->is_type(['simple', 'variable']) || !wc_products_array_filter_readable($item)) {
+            continue;
+        }
+
+        $valid_ids[] = $taken[] = $item_id;
+    }
+
+    if ($valid_ids) {
+        $product->update_meta_data('_' . $field, $valid_ids);
+    }
+    else {
+        $product->delete_meta_data('_' . $field);
+    }
 }

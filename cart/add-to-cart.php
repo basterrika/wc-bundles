@@ -1,7 +1,7 @@
 <?php
 /**
  * Add every bundle component through WooCommerce's product form handler.
- * Components become plain, independent cart lines; nothing links them afterwards.
+ * Paid components become plain, independent cart lines; free ones remember their bundle (see cart/init.php).
  */
 
 defined('ABSPATH') || exit;
@@ -65,7 +65,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
                 throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name']));
             }
 
-            if (!$cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'])) {
+            if (!$cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], $component['free'] ? ['wc_bundles_free' => $bundle_id] : [])) {
                 throw new Exception(__('The complete bundle could not be added. Your previous cart has been kept.', 'wc-bundles'));
             }
         }
@@ -88,7 +88,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
  *
  * @param array<int, array<string, string>> $selections Selected attributes keyed by product ID.
  * @param list<int> $expected Component IDs from the page.
- * @return list<array{name: string, product_id: int, variation_id: int, variation: array}>
+ * @return list<array{name: string, product_id: int, variation_id: int, variation: array, free: bool}>
  * @throws Exception When the bundle or a selection is unavailable.
  */
 function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, array $expected): array {
@@ -96,8 +96,8 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
         throw new Exception(__('This bundle is no longer available.', 'wc-bundles'));
     }
 
-    $saved = $bundle->get_meta('_wc_bundles_item_ids', true, 'edit');
-    $ids = is_array($saved) ? wp_parse_id_list($saved) : [];
+    $free_ids = wc_bundles_get_free_ids($bundle);
+    $ids = array_merge(wc_bundles_get_item_ids($bundle), $free_ids);
     $products = wc_bundles_get_items($bundle);
     $public_ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
 
@@ -123,7 +123,7 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
             $variation_id = $variation->get_id();
         }
 
-        $resolved[] = ['name' => $product->get_name(), 'product_id' => $parent_id, 'variation_id' => $variation_id, 'variation' => $attributes];
+        $resolved[] = ['name' => $product->get_name(), 'product_id' => $parent_id, 'variation_id' => $variation_id, 'variation' => $attributes, 'free' => in_array($parent_id, $free_ids, true)];
     }
 
     return $resolved;

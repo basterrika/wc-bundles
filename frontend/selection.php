@@ -48,6 +48,7 @@ function wc_bundles_send_selection(): void {
 function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, array $displayed): array {
     $products = wc_bundles_get_items($bundle);
     $ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
+    $free_ids = wc_bundles_get_free_ids($bundle);
     $items = [];
     $selected_total = 0.0;
     $available = true;
@@ -76,15 +77,16 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
 
         if ($data && $data['variation_is_visible'] && $data['variation_is_active'] && $data['is_purchasable']) {
             $in_stock = $data['is_in_stock'] && $variation->has_enough_stock(1);
+            $free = in_array($product->get_id(), $free_ids, true);
             $result = [
                 'variation_id' => $variation->get_id(),
                 // WooCommerce omits price_html when all variations share a price; the bundle always shows it
-                'price_html' => wc_bundles_kses_html($data['price_html'] ?: $variation->get_price_html()),
+                'price_html' => wc_bundles_kses_html($free ? wc_bundles_free_price_html($variation, (float)$data['display_price']) : ($data['price_html'] ?: $variation->get_price_html())),
                 'image_html' => wc_bundles_kses_html($variation->get_image('woocommerce_thumbnail', ['class' => 'wc-bundles-product-image'])),
                 'thumbnail_html' => wc_bundles_kses_html($variation->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy'])),
                 'message' => $in_stock ? '' : __('This combination is out of stock. Choose different options.', 'wc-bundles'),
             ];
-            $selected_total += (float)$data['display_price'];
+            $selected_total += $free ? 0.0 : (float)$data['display_price'];
             unset($products[$index]);
             $available = $available && $in_stock;
         }
@@ -99,7 +101,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
         $available = false;
     }
 
-    $total = $products ? wc_bundles_calculate_total($products, true) : ['min' => 0.0, 'max' => 0.0];
+    $total = $products ? wc_bundles_calculate_total($products, true, $free_ids) : ['min' => 0.0, 'max' => 0.0];
     if ($total) {
         $total['min'] += $selected_total;
         $total['max'] += $selected_total;

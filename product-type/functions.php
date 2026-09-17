@@ -3,13 +3,34 @@
 defined('ABSPATH') || exit;
 
 /**
- * Get a bundle's public component products in their configured order.
+ * Get a bundle's configured paid or free product IDs.
+ *
+ * @return list<int>
+ */
+function wc_bundles_get_item_ids(WC_Product $product, bool $free = false): array {
+    $saved_ids = $product->get_meta($free ? '_wc_bundles_free_item_ids' : '_wc_bundles_item_ids', true, 'edit');
+
+    return is_array($saved_ids) ? wp_parse_id_list($saved_ids) : [];
+}
+
+/**
+ * Get a bundle's free product IDs. Nothing is free without paid products, and a product in both lists is paid.
+ *
+ * @return list<int>
+ */
+function wc_bundles_get_free_ids(WC_Product $product): array {
+    $paid_ids = wc_bundles_get_item_ids($product);
+
+    return $paid_ids ? array_values(array_diff(wc_bundles_get_item_ids($product, true), $paid_ids)) : [];
+}
+
+/**
+ * Get a bundle's public component products in their configured order, paid before free.
  *
  * @return list<WC_Product>
  */
 function wc_bundles_get_items(WC_Product $product): array {
-    $saved_ids = $product->get_meta('_wc_bundles_item_ids', true, 'edit');
-    $item_ids = is_array($saved_ids) ? wp_parse_id_list($saved_ids) : [];
+    $item_ids = array_merge(wc_bundles_get_item_ids($product), wc_bundles_get_free_ids($product));
     $items = [];
 
     if ($item_ids) {
@@ -67,10 +88,11 @@ function wc_bundles_resolve_variation(WC_Product_Variable $product, array $selec
  *
  * @param list<WC_Product> $items Component products or selected variations.
  * @param bool $for_display Apply WooCommerce's shop tax-display settings.
+ * @param list<int> $free_ids Product IDs that add nothing to the total.
  *
  * @return array{min: float, max: float}|null Null for empty or unpriced items.
  */
-function wc_bundles_calculate_total(array $items, bool $for_display = false): ?array {
+function wc_bundles_calculate_total(array $items, bool $for_display = false, array $free_ids = []): ?array {
     if (!$items) {
         return null;
     }
@@ -86,19 +108,39 @@ function wc_bundles_calculate_total(array $items, bool $for_display = false): ?a
                 return null;
             }
 
-            $minimum += (float)current($prices['price']);
-            $maximum += (float)end($prices['price']);
+            $low = (float)current($prices['price']);
+            $high = (float)end($prices['price']);
         }
         else {
             if ($item->get_price() === '') {
                 return null;
             }
 
-            $price = $for_display ? wc_get_price_to_display($item) : (float)$item->get_price();
-            $minimum += $price;
-            $maximum += $price;
+            $low = $high = $for_display ? wc_get_price_to_display($item) : (float)$item->get_price();
+        }
+
+        // Free items must still be priced to be purchasable, but add nothing
+        if (!in_array($item->get_id(), $free_ids, true)) {
+            $minimum += $low;
+            $maximum += $high;
         }
     }
 
     return ['min' => $minimum, 'max' => $maximum];
+}
+
+/**
+ * Show a free item's usual price crossed out next to a zero price.
+ *
+ * @param float|null $price Display price of the selected variation, when known.
+ */
+function wc_bundles_free_price_html(WC_Product $product, ?float $price = null): string {
+    if ($price === null && $product instanceof WC_Product_Variable) {
+        $minimum = $product->get_variation_price('min', true);
+        $maximum = $product->get_variation_price('max', true);
+
+        return wc_format_sale_price($minimum === $maximum ? $minimum : wc_format_price_range($minimum, $maximum), 0);
+    }
+
+    return wc_format_sale_price($price ?? wc_get_price_to_display($product), 0);
 }

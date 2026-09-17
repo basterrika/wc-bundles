@@ -33,18 +33,19 @@ function wc_bundles_get_frontend_data(WC_Product $product): array {
     }
 
     $products = wc_bundles_get_items($product);
+    $free_ids = wc_bundles_get_free_ids($product);
     $items = [];
     $has_options = false;
 
     foreach ($products as $item) {
-        $data = wc_bundles_prepare_item($item);
+        $data = wc_bundles_prepare_item($item, in_array($item->get_id(), $free_ids, true));
         $items[] = $data;
         $has_options = $has_options || $data['attributes'] !== [];
     }
 
     return $views[$product_id] = [
         'items' => $items,
-        'total_html' => wc_bundles_format_total(wc_bundles_calculate_total($products, true)),
+        'total_html' => wc_bundles_format_total(wc_bundles_calculate_total($products, true, $free_ids)),
         'has_options' => $has_options,
         'form_action' => apply_filters('woocommerce_add_to_cart_form_action', $product->get_permalink()),
     ];
@@ -53,7 +54,7 @@ function wc_bundles_get_frontend_data(WC_Product $product): array {
 /**
  * Prepare display values and option controls without loading variation objects.
  */
-function wc_bundles_prepare_item(WC_Product $item): array {
+function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
     $attributes = [];
     $is_variable = $item->is_type('variable');
 
@@ -102,7 +103,7 @@ function wc_bundles_prepare_item(WC_Product $item): array {
         'name' => $item->get_name(),
         'url' => $item->get_permalink(),
         'description' => wp_trim_words(wp_strip_all_tags(strip_shortcodes($item->get_short_description())), 45),
-        'price_html' => $item->get_price_html(),
+        'price_html' => $free ? wc_bundles_free_price_html($item) : $item->get_price_html(),
         'image_html' => $item->get_image('woocommerce_thumbnail', ['class' => 'wc-bundles-product-image']),
         'thumbnail_html' => $item->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy']),
         'is_variable' => $is_variable,

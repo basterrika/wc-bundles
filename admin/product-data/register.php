@@ -29,56 +29,71 @@ function wc_bundles_render_bundle_items_panel(): void {
     /** @var WC_Product $product_object Current product set by WooCommerce's product-data metabox. */
     global $product_object;
 
-    // Render an empty panel for other types so switching to Bundle works without a reload
-    $item_ids = $product_object->is_type('bundle')
-        ? $product_object->get_meta('_wc_bundles_item_ids', true, 'edit') ?: []
-        : [];
+    $fields = [
+        'wc_bundles_item_ids' => [__('Products', 'wc-bundles'), __('One of each product is included at its own price. Drag to reorder.', 'wc-bundles')],
+        'wc_bundles_free_item_ids' => [__('Free products', 'wc-bundles'), __('One of each product is included at no cost while every product above is in the cart. Drag to reorder.', 'wc-bundles')],
+    ];
     $excluded_types = array_diff(array_keys(wc_get_product_types()), ['simple', 'variable']);
-
-    if ($item_ids) {
-        _prime_post_caches($item_ids);
-    }
 
     ?>
 
     <div id="wc_bundles_items_data" class="panel woocommerce_options_panel hidden">
         <input type="hidden" name="wc_bundles_items_present" value="1">
         <div class="options_group">
-            <div class="wc-bundles-field">
-                <label for="wc_bundles_item_ids"><?php esc_html_e('Products', 'wc-bundles'); ?></label>
-                <select
-                    id="wc_bundles_item_ids"
-                    name="wc_bundles_item_ids[]"
-                    class="wc-product-search"
-                    multiple="multiple"
-                    style="width: 100%;"
-                    aria-describedby="wc_bundles_item_ids_description"
-                    data-sortable="true"
-                    data-action="woocommerce_json_search_products"
-                    data-placeholder="<?php esc_attr_e('Search for a product…', 'wc-bundles'); ?>"
-                    data-exclude="<?php echo esc_attr($product_object->get_id()); ?>"
-                    data-exclude_type="<?php echo esc_attr(implode(',', $excluded_types)); ?>"
-                >
-                    <?php
+            <?php
 
-                    foreach ($item_ids as $item_id) {
-                        $item = wc_get_product($item_id);
+            foreach ($fields as $field => [$label, $description]) {
+                // Render empty fields for other types so switching to Bundle works without a reload
+                $item_ids = $product_object->is_type('bundle')
+                    ? $product_object->get_meta('_' . $field, true, 'edit') ?: []
+                    : [];
 
-                        if (!$item) {
-                            continue;
+                if ($item_ids) {
+                    _prime_post_caches($item_ids);
+                }
+
+                ?>
+
+                <div class="wc-bundles-field">
+                    <label for="<?php echo esc_attr($field); ?>"><?php echo esc_html($label); ?></label>
+                    <select
+                        id="<?php echo esc_attr($field); ?>"
+                        name="<?php echo esc_attr($field); ?>[]"
+                        class="wc-product-search"
+                        multiple="multiple"
+                        style="width: 100%;"
+                        aria-describedby="<?php echo esc_attr($field); ?>_description"
+                        data-sortable="true"
+                        data-action="woocommerce_json_search_products"
+                        data-placeholder="<?php esc_attr_e('Search for a product…', 'wc-bundles'); ?>"
+                        data-exclude="<?php echo esc_attr($product_object->get_id()); ?>"
+                        data-exclude_type="<?php echo esc_attr(implode(',', $excluded_types)); ?>"
+                    >
+                        <?php
+
+                        foreach ($item_ids as $item_id) {
+                            $item = wc_get_product($item_id);
+
+                            if (!$item) {
+                                continue;
+                            }
+
+                            ?>
+
+                            <option value="<?php echo esc_attr($item_id); ?>" selected="selected"><?php echo esc_html(wp_strip_all_tags($item->get_formatted_name())); ?></option>
+
+                            <?php
                         }
 
                         ?>
+                    </select>
+                    <p id="<?php echo esc_attr($field); ?>_description" class="description"><?php echo esc_html($description); ?></p>
+                </div>
 
-                        <option value="<?php echo esc_attr($item_id); ?>" selected="selected"><?php echo esc_html(wp_strip_all_tags($item->get_formatted_name())); ?></option>
+                <?php
+            }
 
-                        <?php
-                    }
-
-                    ?>
-                </select>
-                <p id="wc_bundles_item_ids_description" class="description"><?php esc_html_e('One of each product is included. Drag to reorder.', 'wc-bundles'); ?></p>
-            </div>
+            ?>
         </div>
     </div>
     <?php
