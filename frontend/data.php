@@ -107,6 +107,7 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
         'image_html' => $item->get_image('woocommerce_thumbnail', ['class' => 'wc-bundles-product-image']),
         'thumbnail_html' => $item->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy']),
         'is_variable' => $is_variable,
+        'free' => $free,
         'attributes' => $attributes,
     ];
 }

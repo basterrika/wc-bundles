@@ -62,7 +62,7 @@ defined('ABSPATH') || exit;
             if ($item['is_variable'] || $item['price_html']) {
                 ?>
 
-                <span class="wc-bundles-price"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
+                <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
 
                 <?php
             }

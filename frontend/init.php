@@ -8,6 +8,14 @@ function wc_bundles_load_selection(): void {
     wc_bundles_send_selection();
 }
 
+add_action('wp_enqueue_scripts', 'wc_bundles_enqueue_free_price_style');
+function wc_bundles_enqueue_free_price_style(): void {
+    // Carts can render on any page; one inlined rule avoids a stylesheet request.
+    wp_register_style('wc-bundles-free-price', false, [], WC_BUNDLES_VERSION);
+    wp_enqueue_style('wc-bundles-free-price');
+    wp_add_inline_style('wc-bundles-free-price', '.wc-bundles-free-price del{color:#c00}');
+}
+
 add_action('wp', 'wc_bundles_init_frontend');
 function wc_bundles_init_frontend(): void {
     if (!is_product() || is_feed() || post_password_required()) {
