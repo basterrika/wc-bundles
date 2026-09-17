@@ -42,7 +42,7 @@ function wc_bundles_send_selection(): void {
  * @param array<int, array<string, mixed>> $selections Complete item selections keyed by product ID.
  * @param list<int> $displayed Product IDs currently displayed on the page.
  *
- * @return array{items: array<int, array>, total_html: string}
+ * @return array{items: array<int, array>, purchasable: bool, total_html: string}
  * @throws Exception
  */
 function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, array $displayed): array {
@@ -51,6 +51,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
     $items = [];
     $selected_total = 0.0;
     $available = true;
+    $ready = true;
 
     foreach ($products as $index => $product) {
         if (!$product instanceof WC_Product_Variable) {
@@ -60,6 +61,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
         $selection = $selections[$product->get_id()] ?? null;
 
         if ($selection === null) {
+            $ready = false;
             continue;
         }
 
@@ -105,6 +107,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
 
     return [
         'items' => $items,
+        'purchasable' => $available && $ready && $total !== null,
         'total_html' => $available
             ? wc_bundles_kses_html(wc_bundles_format_total($total))
             : esc_html__('Selection unavailable', 'wc-bundles'),

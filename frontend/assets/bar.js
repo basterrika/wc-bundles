@@ -3,9 +3,8 @@
 
   const bar = document.querySelector('.wc-bundles-bar');
   const purchase = document.querySelector('.wc-bundles .wc-bundles-purchase');
-  const button = bar?.querySelector('.wc-bundles-bar-purchase');
 
-  if (!bar || !purchase || !button) {
+  if (!bar || !purchase) {
     return;
   }
 
@@ -19,11 +18,6 @@
     document.body.classList.toggle('wc-bundles-bar-visible', visible);
   }
 
-  function forwardClick() {
-    purchase.click();
-  }
-
   new ResizeObserver(setHeight).observe(bar);
   new IntersectionObserver(toggle).observe(purchase);
-  button.addEventListener('click', forwardClick);
 })();

@@ -91,7 +91,7 @@ function wc_bundles_prepare_item(WC_Product $item): array {
                 'label' => $is_taxonomy
                     ? ($attribute->get_taxonomy_object()->attribute_label ?? $attribute->get_name())
                     : $attribute->get_name(),
-                'input_name' => 'wc-bundles-attribute-' . $item->get_id() . '-' . $key,
+                'input_name' => 'wc_bundles_selections[' . $item->get_id() . '][' . wc_variation_attribute_name($attribute->get_name()) . ']',
                 'options' => $choices,
             ];
         }

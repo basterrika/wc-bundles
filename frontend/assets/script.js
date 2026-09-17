@@ -15,6 +15,7 @@
   }
 
   const totals = [total, ...document.querySelectorAll('.wc-bundles-bar-total')];
+  const purchaseButtons = document.querySelectorAll('.wc-bundles-purchase, .wc-bundles-bar-purchase');
   const initialTotal = total.innerHTML;
   const items = Array.from(bundle.querySelectorAll('[data-summary-id]'), function prepareItem(element) {
     const summary = document.getElementById(element.dataset.summaryId);
@@ -44,6 +45,12 @@
   }).filter(Boolean);
   let controller;
   let lastSelection;
+
+  function setPurchasable(available) {
+    for (const button of purchaseButtons) {
+      button.disabled = !available;
+    }
+  }
 
   function setHtml(element, html) {
     if (element.innerHTML !== html) {
@@ -102,6 +109,7 @@
       return;
     }
     lastSelection = key;
+    setPurchasable(false);
     controller?.abort();
     controller = null;
     retry.hidden = true;
@@ -170,6 +178,7 @@
         setStatus(item, selection.message);
       }
       setTotal(result.data.total_html);
+      setPurchasable(result.data.purchasable === true);
     }
     catch (error) {
       if (controller !== request) {

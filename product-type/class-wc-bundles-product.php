@@ -8,7 +8,7 @@ class WC_Bundles_Product extends WC_Product {
     }
 
     public function is_purchasable(): false {
-        // Enable purchases once bundle items and pricing are implemented.
+        // The bundle adds its components instead of a standalone cart line
         return false;
     }
 }

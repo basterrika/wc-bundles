@@ -276,7 +276,6 @@ div.product.wc-bundles .wc-bundles-total-value {
 }
 
 div.product.wc-bundles .wc-bundles-purchase {
-  color: #000;
   font-size: 13px;
   font-weight: 500;
 }
@@ -284,6 +283,7 @@ div.product.wc-bundles .wc-bundles-purchase {
 div.product.wc-bundles .wc-bundles-purchase:disabled {
   background: #e8e8e8;
   border-color: #e8e8e8;
+  color: #000;
 }
 
 .wc-bundles-bar {

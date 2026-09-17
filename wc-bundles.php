@@ -27,6 +27,7 @@ add_action('plugins_loaded', static function() {
     }
 
     require_once WC_BUNDLES_PLUGIN_PATH . 'product-type/register.php';
+    require_once WC_BUNDLES_PLUGIN_PATH . 'cart/init.php';
 
     if (!is_admin()) {
         require_once WC_BUNDLES_PLUGIN_PATH . 'frontend/init.php';
