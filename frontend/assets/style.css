@@ -186,8 +186,24 @@
 
 .wc-bundles-options {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.wc-bundles-options:has(> :nth-child(3):last-child) {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.wc-bundles-options:has(> :nth-child(4):last-child) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.wc-bundles-options:has(> :nth-child(5)) {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.wc-bundles-options:has(> .wc-bundles-swatch) {
+  grid-template-columns: repeat(auto-fill, 56px);
 }
 
 .wc-bundles .wc-bundles-option {
