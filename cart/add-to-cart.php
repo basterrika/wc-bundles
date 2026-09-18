@@ -53,11 +53,11 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
     $components = wc_bundles_validate_purchase($bundle, $selections, $displayed);
     $before = $cart->get_cart();
     $removed = $cart->get_removed_cart_contents();
+    $added = [];
 
-    $priority = has_action('woocommerce_add_to_cart', [$cart, 'calculate_totals']);
-    if ($priority !== false) {
-        remove_action('woocommerce_add_to_cart', [$cart, 'calculate_totals'], $priority);
-    }
+    // Hold add-to-cart events until the whole bundle is in, so listeners never see an add that is rolled back
+    $listeners = $GLOBALS['wp_filter']['woocommerce_add_to_cart'] ?? null;
+    unset($GLOBALS['wp_filter']['woocommerce_add_to_cart']);
 
     try {
         foreach ($components as $component) {
@@ -65,17 +65,37 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
                 throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name']));
             }
 
-            if (!$cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], [$component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid' => $bundle_id])) {
+            $data = [$component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid' => $bundle_id];
+            $key = $cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], $data);
+
+            if (!$key) {
                 throw new Exception(__('The complete bundle could not be added. Your previous cart has been kept.', 'wc-bundles'));
             }
+
+            $added[] = [$key, $component['product_id'], 1, $component['variation_id'], $cart->get_cart_item($key)['variation'], $data];
         }
     }
     catch (Throwable $error) {
         $cart->set_cart_contents($before);
         $cart->set_removed_cart_contents($removed);
+        $added = [];
         throw $error;
     }
     finally {
+        if ($listeners) {
+            $GLOBALS['wp_filter']['woocommerce_add_to_cart'] = $listeners;
+        }
+
+        // Replay the events with totals calculated once at the end instead of per component
+        $priority = has_action('woocommerce_add_to_cart', [$cart, 'calculate_totals']);
+        if ($priority !== false) {
+            remove_action('woocommerce_add_to_cart', [$cart, 'calculate_totals'], $priority);
+        }
+
+        foreach ($added as $args) {
+            do_action('woocommerce_add_to_cart', ...$args);
+        }
+
         if ($priority !== false) {
             add_action('woocommerce_add_to_cart', [$cart, 'calculate_totals'], $priority, 0);
         }
