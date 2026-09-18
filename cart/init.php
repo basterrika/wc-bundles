@@ -40,38 +40,58 @@ function wc_bundles_free_item_price_html(string $html, array $item): string {
 }
 
 /**
- * Keep free items only while their bundle's paid products are in the cart, one free unit per complete set.
+ * Keep free items only while the paid products added with their bundle are in the cart, one free unit per complete set.
+ * Only lines tagged by the bundle's own add-to-cart count; the same product added elsewhere does not.
  */
 add_action('woocommerce_before_calculate_totals', 'wc_bundles_sync_free_items');
 function wc_bundles_sync_free_items(WC_Cart $cart): void {
-    $free = [];
-    $paid = [];
+    static $syncing = false;
 
-    foreach ($cart->get_cart() as $key => $item) {
-        if (isset($item['wc_bundles_free'])) {
-            $free[$key] = $item;
-        }
-        else {
-            $paid[$item['product_id']] = ($paid[$item['product_id']] ?? 0) + $item['quantity'];
-        }
+    if ($syncing) {
+        return;
     }
 
-    foreach ($free as $key => $item) {
-        $bundle = wc_get_product($item['wc_bundles_free']);
-        $allowed = 0;
+    $syncing = true;
 
-        if ($bundle && $bundle->is_type('bundle') && in_array($item['product_id'], wc_bundles_get_free_ids($bundle), true)) {
-            $allowed = min(array_map(static fn(int $id) => $paid[$id] ?? 0, wc_bundles_get_item_ids($bundle)));
+    try {
+        $free = [];
+        $paid = [];
+
+        foreach ($cart->get_cart() as $key => $item) {
+            if (isset($item['wc_bundles_free'])) {
+                $free[$item['wc_bundles_free']][$key] = $item;
+            }
+            elseif (isset($item['wc_bundles_paid'])) {
+                $paid[$item['wc_bundles_paid']][$item['product_id']] = ($paid[$item['wc_bundles_paid']][$item['product_id']] ?? 0) + $item['quantity'];
+            }
         }
 
-        if ($item['quantity'] <= $allowed) {
-            continue;
-        }
+        foreach ($free as $bundle_id => $lines) {
+            $bundle = wc_get_product($bundle_id);
+            $paid_ids = $bundle && $bundle->is_type('bundle') ? wc_bundles_get_item_ids($bundle) : [];
+            $free_ids = $paid_ids ? wc_bundles_get_free_ids($bundle) : [];
+            $sets = $free_ids ? min(array_map(static fn(int $id) => $paid[$bundle_id][$id] ?? 0, $paid_ids)) : 0;
+            $remaining = [];
 
-        $cart->set_quantity($key, $allowed, false);
+            foreach ($lines as $key => $item) {
+                $product_id = $item['product_id'];
+                $remaining[$product_id] ??= in_array($product_id, $free_ids, true) ? $sets : 0;
+                $allowed = min($item['quantity'], $remaining[$product_id]);
+                $remaining[$product_id] -= $allowed;
 
-        if (!$allowed) {
-            wc_add_notice(sprintf(__('%s was removed because its bundle is no longer complete.', 'wc-bundles'), $item['data']->get_name()), 'notice');
+                if ($item['quantity'] <= $allowed) {
+                    continue;
+                }
+
+                $cart->set_quantity($key, $allowed, false);
+
+                if (!$allowed) {
+                    wc_add_notice(sprintf(__('%s was removed because its bundle is no longer complete.', 'wc-bundles'), $item['data']->get_name()), 'notice');
+                }
+            }
         }
+    }
+    finally {
+        $syncing = false;
     }
 }

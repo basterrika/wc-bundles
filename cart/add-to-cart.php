@@ -1,7 +1,7 @@
 <?php
 /**
  * Add every bundle component through WooCommerce's product form handler.
- * Paid components become plain, independent cart lines; free ones remember their bundle (see cart/init.php).
+ * Every component remembers its bundle in hidden cart item data; only those lines count toward free items (see cart/init.php).
  */
 
 defined('ABSPATH') || exit;
@@ -65,7 +65,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
                 throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name']));
             }
 
-            if (!$cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], $component['free'] ? ['wc_bundles_free' => $bundle_id] : [])) {
+            if (!$cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], [$component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid' => $bundle_id])) {
                 throw new Exception(__('The complete bundle could not be added. Your previous cart has been kept.', 'wc-bundles'));
             }
         }
