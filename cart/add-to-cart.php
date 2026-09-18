@@ -97,11 +97,10 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
     }
 
     $free_ids = wc_bundles_get_free_ids($bundle);
-    $ids = array_merge(wc_bundles_get_item_ids($bundle), $free_ids);
     $products = wc_bundles_get_items($bundle);
-    $public_ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
+    $ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
 
-    if (!$ids || array_diff($ids, $public_ids) || array_diff($ids, $expected) || array_diff($expected, $ids)) {
+    if (!wc_bundles_is_complete($bundle) || array_diff($ids, $expected) || array_diff($expected, $ids)) {
         throw new Exception(__('This bundle has changed or contains unavailable products. Please reload its product page.', 'wc-bundles'));
     }
 

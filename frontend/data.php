@@ -47,6 +47,7 @@ function wc_bundles_get_frontend_data(WC_Product $product): array {
         'items' => $items,
         'total_html' => wc_bundles_format_total(wc_bundles_calculate_total($products, true, $free_ids)),
         'has_options' => $has_options,
+        'available' => wc_bundles_is_complete($product),
         'form_action' => apply_filters('woocommerce_add_to_cart_form_action', $product->get_permalink()),
     ];
 }

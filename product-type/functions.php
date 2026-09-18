@@ -51,6 +51,15 @@ function wc_bundles_get_items(WC_Product $product): array {
 }
 
 /**
+ * Check whether every product configured in the bundle is still available to buy.
+ */
+function wc_bundles_is_complete(WC_Product $product): bool {
+    $item_ids = array_merge(wc_bundles_get_item_ids($product), wc_bundles_get_free_ids($product));
+
+    return $item_ids && count(wc_bundles_get_items($product)) === count($item_ids);
+}
+
+/**
  * Find the matching variation only when all required options are selected.
  *
  * @param array $selection Posted attribute names and values.
