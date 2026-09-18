@@ -17,14 +17,6 @@ defined('ABSPATH') || exit;
 
             <?php
 
-            if ($item['free']) {
-                ?>
-
-                <span class="wc-bundles-note"><?php esc_html_e('Free with this bundle', 'wc-bundles'); ?></span>
-
-                <?php
-            }
-
             if ($item['attributes']) {
                 ?>
 
@@ -35,7 +27,21 @@ defined('ABSPATH') || exit;
 
             ?>
         </span>
-        <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
+        <span class="wc-bundles-item-price">
+            <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
+
+            <?php
+
+            if ($item['free']) {
+                ?>
+
+                <small class="wc-bundles-note"><?php esc_html_e('Free with this bundle', 'wc-bundles'); ?></small>
+
+                <?php
+            }
+
+            ?>
+        </span>
     </summary>
     <div class="wc-bundles-item-body">
         <?php

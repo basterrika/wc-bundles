@@ -42,7 +42,7 @@
   display: block;
   margin: 2px 0 0;
   color: var(--wc-bundles-muted);
-  font-size: 0.9em;
+  font-size: 0.8em;
   font-weight: 400;
 }
 
@@ -76,8 +76,9 @@
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) fit-content(40%) 10px;
   gap: 12px;
-  align-items: center;
+  align-items: start;
   padding: 14px 14px 14px 12px;
+  line-height: 1.35;
   list-style: none;
   cursor: pointer;
 }
@@ -90,7 +91,7 @@
   content: "";
   width: 8px;
   height: 8px;
-  margin-top: -4px;
+  margin-top: 2px;
   border: solid currentColor;
   border-width: 0 1.5px 1.5px 0;
   transform: rotate(45deg);
@@ -98,8 +99,24 @@
 }
 
 .wc-bundles-item[open] > .wc-bundles-item-header::after {
-  margin-top: 4px;
+  margin-top: 8px;
   transform: rotate(225deg);
+}
+
+/* Where supported, the first line starts at its capitals, level with the thumbnail's top edge */
+@supports (text-box: trim-start cap alphabetic) {
+  .wc-bundles-item-title,
+  .wc-bundles-price {
+    text-box: trim-start cap alphabetic;
+  }
+
+  .wc-bundles-item-header::after {
+    margin-top: -1px;
+  }
+
+  .wc-bundles-item[open] > .wc-bundles-item-header::after {
+    margin-top: 4px;
+  }
 }
 
 .wc-bundles-item-header:focus-visible {
@@ -125,18 +142,26 @@
   height: 100%;
 }
 
-.wc-bundles-item-title {
+.wc-bundles-item-title,
+.wc-bundles-price {
   display: block;
-  font-weight: 600;
-  line-height: 1.35;
+  font-size: 0.9em;
 }
 
-.wc-bundles-price {
+.wc-bundles-item-title {
+  font-weight: 600;
+}
+
+.wc-bundles-item-price {
   text-align: end;
 }
 
 .wc-bundles-price .amount {
   white-space: nowrap;
+}
+
+.wc-bundles-price del {
+  color: #c00;
 }
 
 .wc-bundles-item-body {
