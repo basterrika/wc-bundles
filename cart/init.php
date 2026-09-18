@@ -55,22 +55,16 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
 
     try {
         $free = [];
-        $paid = [];
 
         foreach ($cart->get_cart() as $key => $item) {
             if (isset($item['wc_bundles_free'])) {
                 $free[$item['wc_bundles_free']][$key] = $item;
             }
-            elseif (isset($item['wc_bundles_paid'])) {
-                $paid[$item['wc_bundles_paid']][$item['product_id']] = ($paid[$item['wc_bundles_paid']][$item['product_id']] ?? 0) + $item['quantity'];
-            }
         }
 
         foreach ($free as $bundle_id => $lines) {
-            $bundle = wc_get_product($bundle_id);
-            $paid_ids = $bundle && $bundle->is_type('bundle') && $bundle->get_status() === 'publish' ? wc_bundles_get_item_ids($bundle) : [];
-            $free_ids = $paid_ids ? wc_bundles_get_free_ids($bundle) : [];
-            $sets = $free_ids ? min(array_map(static fn(int $id) => $paid[$bundle_id][$id] ?? 0, $paid_ids)) : 0;
+            $sets = wc_bundles_count_sets($cart, (int)$bundle_id);
+            $free_ids = $sets ? wc_bundles_get_free_ids(wc_get_product($bundle_id)) : [];
             $remaining = [];
 
             foreach ($lines as $key => $item) {
@@ -93,6 +87,55 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
     }
     finally {
         $syncing = false;
+    }
+}
+
+/**
+ * Count the complete sets of a published bundle's paid products among the lines added with it.
+ */
+function wc_bundles_count_sets(WC_Cart $cart, int $bundle_id): int {
+    $bundle = wc_get_product($bundle_id);
+    $paid_ids = $bundle && $bundle->is_type('bundle') && $bundle->get_status() === 'publish' ? wc_bundles_get_item_ids($bundle) : [];
+
+    if (!$paid_ids) {
+        return 0;
+    }
+
+    $quantities = array_fill_keys($paid_ids, 0);
+
+    foreach ($cart->get_cart() as $item) {
+        if ((int)($item['wc_bundles_paid'] ?? 0) === $bundle_id && isset($quantities[$item['product_id']])) {
+            $quantities[$item['product_id']] += $item['quantity'];
+        }
+    }
+
+    return min($quantities);
+}
+
+// Restored lines get a fresh product object, so free ones need their zero price again
+add_action('woocommerce_restore_cart_item', 'wc_bundles_price_restored_item', 10, 2);
+function wc_bundles_price_restored_item(string $key, WC_Cart $cart): void {
+    // WooCommerce restores the line even when its product was deleted meanwhile
+    if ($cart->cart_contents[$key]['data'] instanceof WC_Product) {
+        $cart->cart_contents[$key] = wc_bundles_price_free_item($cart->cart_contents[$key]);
+    }
+}
+
+/**
+ * Undoing a paid line's removal brings back the free lines removed with it, once every paid product of the bundle is in the cart again.
+ */
+add_action('woocommerce_cart_item_restored', 'wc_bundles_restore_free_items', 10, 2);
+function wc_bundles_restore_free_items(string $key, WC_Cart $cart): void {
+    $bundle_id = (int)($cart->get_cart_item($key)['wc_bundles_paid'] ?? 0);
+
+    if (!$bundle_id || !wc_bundles_count_sets($cart, $bundle_id)) {
+        return;
+    }
+
+    foreach ($cart->get_removed_cart_contents() as $removed_key => $item) {
+        if ((int)($item['wc_bundles_free'] ?? 0) === $bundle_id) {
+            $cart->restore_cart_item($removed_key);
+        }
     }
 }
 
