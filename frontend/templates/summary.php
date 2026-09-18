@@ -88,7 +88,7 @@ do_action('woocommerce_before_add_to_cart_form');
 
     ?>
 
-    <button class="single_add_to_cart_button button alt wc-bundles-purchase" type="submit" <?php disabled(!$data['available']); ?>><?php esc_html_e('Add to cart', 'wc-bundles'); ?></button>
+    <button class="single_add_to_cart_button button alt wc-bundles-purchase" type="submit" <?php disabled(!$data['available'] || $data['has_options']); ?>><?php esc_html_e('Add to cart', 'wc-bundles'); ?></button>
 
     <?php do_action('woocommerce_after_add_to_cart_button'); ?>
 </form>
