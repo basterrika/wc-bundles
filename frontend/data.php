@@ -112,18 +112,3 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
         'attributes' => $attributes,
     ];
 }
-
-/**
- * Format a calculated range for display, independently of the calculation.
- */
-function wc_bundles_format_total(?array $total): string {
-    if ($total === null) {
-        return esc_html__('Price unavailable', 'wc-bundles');
-    }
-
-    $decimals = wc_get_price_decimals();
-    $minimum = wc_format_decimal($total['min'], $decimals);
-    $maximum = wc_format_decimal($total['max'], $decimals);
-
-    return $minimum === $maximum ? wc_price($minimum) : wc_format_price_range($minimum, $maximum);
-}
