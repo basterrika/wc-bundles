@@ -55,8 +55,19 @@ function wc_bundles_get_items(WC_Product $product): array {
  */
 function wc_bundles_is_complete(WC_Product $product): bool {
     $item_ids = array_merge(wc_bundles_get_item_ids($product), wc_bundles_get_free_ids($product));
+    $items = wc_bundles_get_items($product);
 
-    return $item_ids && count(wc_bundles_get_items($product)) === count($item_ids);
+    if (!$item_ids || count($items) !== count($item_ids)) {
+        return false;
+    }
+
+    foreach ($items as $item) {
+        if (!$item->is_purchasable() || !$item->is_in_stock()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
