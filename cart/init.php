@@ -95,3 +95,16 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
         $syncing = false;
     }
 }
+
+/**
+ * Record the bundle on each order line so orders, emails and refunds show why a line is free or grouped.
+ */
+add_action('woocommerce_checkout_create_order_line_item', 'wc_bundles_add_order_item_meta', 10, 3);
+function wc_bundles_add_order_item_meta(WC_Order_Item_Product $item, string $key, array $values): void {
+    if (isset($values['wc_bundles_free'])) {
+        $item->add_meta_data(__('Free with', 'wc-bundles'), get_the_title($values['wc_bundles_free']), true);
+    }
+    elseif (isset($values['wc_bundles_paid'])) {
+        $item->add_meta_data(__('Part of', 'wc-bundles'), get_the_title($values['wc_bundles_paid']), true);
+    }
+}
