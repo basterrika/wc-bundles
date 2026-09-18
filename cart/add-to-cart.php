@@ -36,7 +36,7 @@ function wc_bundles_submit_purchase(string|false $url): void {
 }
 
 /**
- * Add every component or restore the cart if any addition fails.
+ * Add every component the next complete set still needs, or restore the cart if any addition fails.
  *
  * @param array<int, array<string, string>> $selections Selected attributes.
  * @param list<int> $displayed Expected component IDs.
@@ -55,17 +55,35 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
     $removed = $cart->get_removed_cart_contents();
     $added = [];
 
+    // Adding tops the cart up to one more complete set, so lines left from a broken set are reused instead of duplicated
+    $target = wc_bundles_count_sets($cart, $bundle_id) + 1;
+    $held = [];
+
+    foreach ($before as $item) {
+        foreach (['wc_bundles_paid', 'wc_bundles_free'] as $tag) {
+            if ((int)($item[$tag] ?? 0) === $bundle_id) {
+                $held[$tag][$item['product_id']] = ($held[$tag][$item['product_id']] ?? 0) + $item['quantity'];
+            }
+        }
+    }
+
     // Hold add-to-cart events until the whole bundle is in, so listeners never see an add that is rolled back
     $listeners = $GLOBALS['wp_filter']['woocommerce_add_to_cart'] ?? null;
     unset($GLOBALS['wp_filter']['woocommerce_add_to_cart']);
 
     try {
         foreach ($components as $component) {
+            $tag = $component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid';
+
+            if (($held[$tag][$component['product_id']] ?? 0) >= $target) {
+                continue;
+            }
+
             if (!apply_filters('woocommerce_add_to_cart_validation', true, $component['product_id'], 1, $component['variation_id'], $component['variation'])) {
                 throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name']));
             }
 
-            $data = [$component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid' => $bundle_id];
+            $data = [$tag => $bundle_id];
             $key = $cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], $data);
 
             if (!$key) {
