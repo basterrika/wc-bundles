@@ -71,13 +71,13 @@ function wc_bundles_is_complete(WC_Product $product): bool {
 }
 
 /**
- * Find the matching variation only when all required options are selected.
+ * Keep only the product's variation attributes with a valid value, or null when any is missing.
  *
  * @param array $selection Posted attribute names and values.
  *
- * @throws Exception
+ * @return array<string, string>|null
  */
-function wc_bundles_resolve_variation(WC_Product_Variable $product, array $selection): ?WC_Product_Variation {
+function wc_bundles_selected_attributes(WC_Product_Variable $product, array $selection): ?array {
     $attributes = [];
 
     foreach ($product->get_variation_attributes() as $name => $options) {
@@ -91,7 +91,20 @@ function wc_bundles_resolve_variation(WC_Product_Variable $product, array $selec
         $attributes[$key] = $value;
     }
 
-    if (!$attributes) {
+    return $attributes ?: null;
+}
+
+/**
+ * Find the matching variation only when all required options are selected.
+ *
+ * @param array $selection Posted attribute names and values.
+ *
+ * @throws Exception
+ */
+function wc_bundles_resolve_variation(WC_Product_Variable $product, array $selection): ?WC_Product_Variation {
+    $attributes = wc_bundles_selected_attributes($product, $selection);
+
+    if ($attributes === null) {
         return null;
     }
 

@@ -132,8 +132,9 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
         $variation_id = 0;
 
         if ($product instanceof WC_Product_Variable) {
-            $attributes = $selections[$parent_id] ?? [];
-            $variation = is_array($attributes) ? wc_bundles_resolve_variation($product, $attributes) : null;
+            $selection = $selections[$parent_id] ?? null;
+            $attributes = is_array($selection) ? wc_bundles_selected_attributes($product, $selection) : null;
+            $variation = $attributes ? wc_bundles_resolve_variation($product, $attributes) : null;
 
             if (!$variation?->variation_is_active()) {
                 throw new Exception(sprintf(__('Choose an available combination for %s.', 'wc-bundles'), $product->get_name()));
