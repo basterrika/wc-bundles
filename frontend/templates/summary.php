@@ -1,6 +1,6 @@
 <?php
 /**
- * Bundle summary, rendered at WooCommerce's bundle add-to-cart hook.
+ * Bundled products and their summary, rendered at WooCommerce's bundle add-to-cart hook.
  *
  * @var array $data Prepared data supplied by wc_bundles_render_summary().
  * @var WC_Product $product Current bundle supplied by wc_bundles_render_summary().
@@ -10,39 +10,33 @@ defined('ABSPATH') || exit;
 
 ?>
 
-<h2 class="wc-bundles-summary-title"><?php esc_html_e('Your bundle', 'wc-bundles'); ?></h2>
-<p class="wc-bundles-hint"><?php esc_html_e('One of each product is included.', 'wc-bundles'); ?></p>
-<ul class="wc-bundles-summary-list">
+<div class="wc-bundles">
+<?php
+
+// Progress only means something when there are options to choose
+if ($data['has_options']) {
+    ?>
+
+    <div class="wc-bundles-progress">
+        <span class="wc-bundles-progress-label"><?php esc_html_e('Items selected', 'wc-bundles'); ?></span>
+        <span class="wc-bundles-count" role="status"><?php echo esc_html($data['ready'] . '/' . count($data['items'])); ?></span>
+    </div>
+    <p class="wc-bundles-hint wc-bundles-note" data-ready="<?php esc_attr_e('Your bundle is ready to add.', 'wc-bundles'); ?>"><?php esc_html_e('Choose the options for each product.', 'wc-bundles'); ?></p>
+
+    <?php
+}
+
+?>
+
+<div class="wc-bundles-items">
     <?php
 
     foreach ($data['items'] as $item) {
-        ?>
-
-        <li class="wc-bundles-summary-item">
-            <?php echo $item['thumbnail_html']; ?>
-            <div class="wc-bundles-summary-details">
-                <a href="#wc-bundles-item-<?php echo esc_attr($item['id']); ?>"><?php echo esc_html($item['name']); ?></a>
-
-                <?php
-
-                if ($item['is_variable']) {
-                    ?>
-
-                    <p id="wc-bundles-selection-<?php echo esc_attr($item['id']); ?>" class="wc-bundles-selection" role="status" aria-atomic="true" data-placeholder="<?php esc_attr_e('Choose options', 'wc-bundles'); ?>"><?php esc_html_e('Choose options', 'wc-bundles'); ?></p>
-
-                    <?php
-                }
-
-                ?>
-            </div>
-            <span class="wc-bundles-quantity">&times; 1</span>
-        </li>
-
-        <?php
+        require WC_BUNDLES_PLUGIN_PATH . 'frontend/templates/item.php';
     }
 
     ?>
-</ul>
+</div>
 
 <div class="wc-bundles-total" role="status" aria-atomic="true">
     <span class="wc-bundles-total-label"><?php esc_html_e('Bundle total', 'wc-bundles'); ?></span>
@@ -88,7 +82,7 @@ do_action('woocommerce_before_add_to_cart_form');
 
     ?>
 
-    <button class="single_add_to_cart_button button alt wc-bundles-purchase" type="submit" <?php disabled(!$data['available'] || $data['has_options']); ?>><?php esc_html_e('Add to cart', 'wc-bundles'); ?></button>
+    <button class="single_add_to_cart_button button alt wc-bundles-purchase" type="submit" <?php disabled(!$data['available']); ?>><?php esc_html_e('Add to cart', 'wc-bundles'); ?></button>
 
     <?php do_action('woocommerce_after_add_to_cart_button'); ?>
 </form>
@@ -96,3 +90,7 @@ do_action('woocommerce_before_add_to_cart_form');
 <?php
 
 do_action('woocommerce_after_add_to_cart_form');
+
+?>
+
+</div>

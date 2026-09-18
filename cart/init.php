@@ -49,7 +49,7 @@ function wc_bundles_free_item_quantity_html(string $html, string $key, array $it
         return $html;
     }
 
-    return sprintf('<span class="wc-bundles-free-quantity qty-label">%s: %d</span>', esc_html__('Qty', 'wc-bundles'), $item['quantity']);
+    return sprintf('<span class="wc-bundles-free-quantity">%s: %d</span>', esc_html__('Qty', 'wc-bundles'), $item['quantity']);
 }
 
 /**

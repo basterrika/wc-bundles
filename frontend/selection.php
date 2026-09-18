@@ -3,7 +3,7 @@
  * Handle option selections from the bundle's single product page.
  *
  * Validate the bundle, resolve complete variation selections, check availability,
- * and return updated images, prices, messages, and the bundle total.
+ * and return updated thumbnails, prices, messages, and the bundle total.
  * Loaded in a separate read-only AJAX request when selections change, not while
  * rendering the product page. Does not modify products or the cart.
  */
@@ -82,7 +82,6 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
                 'variation_id' => $variation->get_id(),
                 // WooCommerce omits price_html when all variations share a price; the bundle always shows it
                 'price_html' => wc_bundles_kses_html($free ? wc_bundles_free_price_html($variation, (float)$data['display_price']) : ($data['price_html'] ?: $variation->get_price_html())),
-                'image_html' => wc_bundles_kses_html($variation->get_image('woocommerce_thumbnail', ['class' => 'wc-bundles-product-image'])),
                 'thumbnail_html' => wc_bundles_kses_html($variation->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy'])),
                 'message' => $in_stock ? '' : __('This combination is out of stock. Choose different options.', 'wc-bundles'),
             ];

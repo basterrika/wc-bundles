@@ -7,50 +7,46 @@
     return;
   }
 
+  const form = bundle.querySelector('.wc-bundles-cart');
   const total = bundle.querySelector('.wc-bundles-total-value');
   const retry = bundle.querySelector('.wc-bundles-retry');
+  const count = bundle.querySelector('.wc-bundles-count');
+  const hint = bundle.querySelector('.wc-bundles-hint[data-ready]');
 
-  if (!total || !retry) {
+  if (!form || !total || !retry || !count || !hint) {
     return;
   }
 
-  const totals = [total, ...document.querySelectorAll('.wc-bundles-bar-total')];
-  const purchaseButtons = document.querySelectorAll('.wc-bundles-purchase, .wc-bundles-bar-purchase');
   const initialTotal = total.innerHTML;
-  const items = Array.from(bundle.querySelectorAll('[data-summary-id]'), function prepareItem(element) {
-    const summary = document.getElementById(element.dataset.summaryId);
-    const image = element.querySelector('.wc-bundles-image');
-    const thumbnail = summary?.closest('.wc-bundles-summary-item')?.querySelector('.wc-bundles-thumbnail');
+  const pendingHint = hint.textContent;
+  const elements = bundle.querySelectorAll('.wc-bundles-item');
+  const items = Array.from(elements, function prepareItem(element) {
+    const summary = element.querySelector('.wc-bundles-selection');
+    const thumbnail = element.querySelector('.wc-bundles-thumbnail');
     const price = element.querySelector('.wc-bundles-price');
     const availability = element.querySelector('.wc-bundles-availability');
 
-    if (!summary || !image || !price || !availability) {
+    if (!summary || !price || !availability) {
       return null;
     }
 
     return {
       element,
       summary,
-      image,
       thumbnail,
       price,
       availability,
+      name: element.querySelector('.wc-bundles-item-title').textContent,
       groups: Array.from(element.querySelectorAll('[data-attribute]')),
-      initialImage: image.innerHTML,
+      variations: JSON.parse(element.dataset.variations || '[]'),
       initialThumbnail: thumbnail ? thumbnail.outerHTML : '',
       initialPrice: price.innerHTML,
-      label: '',
       message: '',
     };
   }).filter(Boolean);
   let controller;
   let lastSelection;
-
-  function setPurchasable(available) {
-    for (const button of purchaseButtons) {
-      button.disabled = !available;
-    }
-  }
+  let submitted = false;
 
   function setHtml(element, html) {
     if (element.innerHTML !== html) {
@@ -58,20 +54,7 @@
     }
   }
 
-  function setTotal(html) {
-    for (const element of totals) {
-      setHtml(element, html);
-    }
-  }
-
-  function setStatus(item, message) {
-    item.message = message;
-    item.availability.textContent = message;
-    item.summary.textContent = item.label || item.summary.dataset.placeholder;
-  }
-
-  function setImages(item, image, thumbnail) {
-    setHtml(item.image, image);
+  function setThumbnail(item, thumbnail) {
     if (!item.thumbnail || item.thumbnail.outerHTML === thumbnail) {
       return;
     }
@@ -84,52 +67,120 @@
     }
   }
 
+  function isSelected(item) {
+    return item.groups.every(function hasChoice(group) { return group.querySelector(':checked'); });
+  }
+
+  function isComplete(item) {
+    return isSelected(item) && !item.message;
+  }
+
+  /**
+   * Disable options that no buyable variation offers alongside the other choices.
+   */
+  function refreshOptions(item) {
+    if (!item.variations.length) {
+      return;
+    }
+
+    // A second pass settles options freed by a choice the first pass cleared
+    for (let pass = 0; pass < 2; pass++) {
+      const chosen = item.groups.map(function readChoice(group) { return group.querySelector(':checked')?.value ?? ''; });
+      let cleared = false;
+
+      item.groups.forEach(function refreshGroup(group, index) {
+        for (const input of group.querySelectorAll('.wc-bundles-option-input')) {
+          input.disabled = !item.variations.some(function offers(variation) {
+            return variation.every(function matches(value, other) {
+              const wanted = other === index ? input.value : chosen[other];
+              return value === '' || wanted === '' || value === wanted;
+            });
+          });
+          if (input.disabled && input.checked) {
+            input.checked = false;
+            cleared = true;
+          }
+        }
+      });
+
+      if (!cleared) {
+        return;
+      }
+    }
+  }
+
+  function render() {
+    let ready = elements.length - items.length;
+
+    for (const item of items) {
+      const complete = isComplete(item);
+      const error = item.message || (submitted && !complete ? wcBundles.choose.replace('%s', item.name) : '');
+      const labels = item.groups.map(function describe(group) {
+        const input = group.querySelector(':checked');
+        group.querySelector('.wc-bundles-attribute-value').textContent = input ? input.dataset.label : '';
+        return input
+          ? `${group.dataset.label}: ${input.dataset.label}`
+          : wcBundles.select.replace('%s', group.dataset.label.toLocaleLowerCase());
+      });
+
+      ready += complete ? 1 : 0;
+      item.summary.textContent = labels.join(' · ');
+      item.availability.textContent = error;
+      item.element.classList.toggle('has-error', error !== '');
+    }
+
+    const done = ready === elements.length;
+    count.textContent = `${ready}/${elements.length}`;
+    hint.textContent = done ? hint.dataset.ready : pendingHint;
+  }
+
+  function setStatus(item, message) {
+    item.message = message;
+    if (message) {
+      item.element.open = true;
+    }
+  }
+
   async function syncSelections(force = false) {
     const selections = {};
 
     for (const item of items) {
-      const attributes = {};
-      const labels = [];
-      for (const group of item.groups) {
-        const input = group.querySelector(':checked');
-        if (input) {
-          attributes[group.dataset.attribute] = input.value;
-          labels.push(`${group.dataset.label}: ${input.nextElementSibling.textContent}`);
+      refreshOptions(item);
+      if (isSelected(item)) {
+        const attributes = {};
+        for (const group of item.groups) {
+          attributes[group.dataset.attribute] = group.querySelector(':checked').value;
         }
-      }
-      item.label = labels.join(' · ');
-      setStatus(item, item.message);
-      if (item.groups.length && labels.length === item.groups.length) {
         selections[item.element.dataset.productId] = attributes;
       }
     }
 
     const key = JSON.stringify(selections);
     if (!force && key === lastSelection) {
+      render();
       return;
     }
     lastSelection = key;
-    setPurchasable(false);
     controller?.abort();
     controller = null;
     retry.hidden = true;
 
     for (const item of items) {
-      delete item.element.dataset.variationId;
       if (!selections[item.element.dataset.productId]) {
-        setImages(item, item.initialImage, item.initialThumbnail);
+        setThumbnail(item, item.initialThumbnail);
         setHtml(item.price, item.initialPrice);
       }
       setStatus(item, '');
     }
+    render();
 
     if (!Object.keys(selections).length) {
-      setTotal(initialTotal);
+      setHtml(total, initialTotal);
       return;
     }
 
     const body = new URLSearchParams({bundle_id: wcBundles.bundleId});
-    for (const element of bundle.querySelectorAll('[data-product-id]')) {
+    for (const element of elements) {
       body.append('items[]', element.dataset.productId);
     }
     for (const [id, attributes] of Object.entries(selections)) {
@@ -167,47 +218,83 @@
         }
         const selection = result.data.items[id] || {variation_id: 0, message: wcBundles.unavailable};
         if (selection.variation_id) {
-          item.element.dataset.variationId = selection.variation_id;
           setHtml(item.price, selection.price_html);
-          setImages(item, selection.image_html, selection.thumbnail_html);
+          setThumbnail(item, selection.thumbnail_html);
         }
         else {
           setHtml(item.price, item.initialPrice);
-          setImages(item, item.initialImage, item.initialThumbnail);
+          setThumbnail(item, item.initialThumbnail);
         }
         setStatus(item, selection.message);
       }
-      setTotal(result.data.total_html);
-      setPurchasable(result.data.purchasable === true);
+      setHtml(total, result.data.total_html);
     }
     catch (error) {
       if (controller !== request) {
         return;
       }
 
-      for (const element of totals) {
-        element.textContent = wcBundles.error;
-      }
+      total.textContent = wcBundles.error;
 
       retry.hidden = false;
       for (const item of items) {
         if (selections[item.element.dataset.productId]) {
-          delete item.element.dataset.variationId;
           setHtml(item.price, item.initialPrice);
-          setImages(item, item.initialImage, item.initialThumbnail);
+          setThumbnail(item, item.initialThumbnail);
           setStatus(item, wcBundles.error);
         }
       }
     }
     finally {
       window.clearTimeout(timeout);
+      render();
     }
   }
 
+  function firstUnselected() {
+    return items.find(function needsChoice(item) { return !isSelected(item); });
+  }
+
   function onSelectionChange(event) {
-    if (event.target.matches('.wc-bundles-option-input')) {
-      syncSelections();
+    if (!event.target.matches('.wc-bundles-option-input')) {
+      return;
     }
+
+    syncSelections();
+
+    // Finishing an item moves on to the next one that still needs choices
+    const item = items.find(function owns(candidate) { return candidate.element.contains(event.target); });
+    if (item && isSelected(item)) {
+      const next = firstUnselected();
+      if (next) {
+        next.element.open = true;
+      }
+      else {
+        item.element.open = false;
+      }
+    }
+  }
+
+  /**
+   * The button stays enabled; an incomplete bundle points at what is missing instead.
+   */
+  function onSubmit(event) {
+    const incomplete = items.filter(function needsWork(item) { return !isComplete(item); });
+
+    if (!incomplete.length) {
+      return;
+    }
+
+    event.preventDefault();
+    submitted = true;
+    render();
+
+    const item = incomplete[0];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const group = item.groups.find(function isEmpty(candidate) { return !candidate.querySelector(':checked'); }) || item.groups[0];
+    item.element.open = true;
+    item.element.scrollIntoView({block: 'center', behavior: reduce ? 'auto' : 'smooth'});
+    group?.querySelector('.wc-bundles-option-input:not(:disabled)')?.focus({preventScroll: true});
   }
 
   function retrySelection() {
@@ -218,8 +305,30 @@
     syncSelections(event.persisted);
   }
 
+  // Fail open: a map that rules out a whole attribute before any choice cannot be trusted
+  for (const item of items) {
+    const unusable = item.groups.some(function isRuledOut(group, index) {
+      return !Array.from(group.querySelectorAll('.wc-bundles-option-input')).some(function isOffered(input) {
+        return item.variations.some(function offers(variation) { return variation[index] === '' || variation[index] === input.value; });
+      });
+    });
+    if (unusable) {
+      item.variations = [];
+    }
+  }
+
+  // Script-side validation replaces the browser's, which cannot reach options inside a closed item
+  form.noValidate = true;
+  form.addEventListener('submit', onSubmit);
   bundle.addEventListener('change', onSelectionChange);
   retry.addEventListener('click', retrySelection);
   window.addEventListener('pageshow', restoreSelections);
+
+  // pageshow can wait seconds for images; the controls should be right from the start
   syncSelections();
+
+  const first = firstUnselected();
+  if (first) {
+    first.element.open = true;
+  }
 })();
