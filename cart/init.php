@@ -68,7 +68,7 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
 
         foreach ($free as $bundle_id => $lines) {
             $bundle = wc_get_product($bundle_id);
-            $paid_ids = $bundle && $bundle->is_type('bundle') ? wc_bundles_get_item_ids($bundle) : [];
+            $paid_ids = $bundle && $bundle->is_type('bundle') && $bundle->get_status() === 'publish' ? wc_bundles_get_item_ids($bundle) : [];
             $free_ids = $paid_ids ? wc_bundles_get_free_ids($bundle) : [];
             $sets = $free_ids ? min(array_map(static fn(int $id) => $paid[$bundle_id][$id] ?? 0, $paid_ids)) : 0;
             $remaining = [];
