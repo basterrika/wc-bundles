@@ -40,7 +40,7 @@ function wc_bundles_free_item_price_html(string $html, array $item): string {
 }
 
 /**
- * Free quantities are capped by the paid sets (see wc_bundles_sync_free_items), so the cart shows them as text instead of an input.
+ * Free quantities follow the paid sets (see wc_bundles_sync_free_items), so the cart shows them as text instead of an input.
  * Runs late to replace any stepper a theme wraps around the input.
  */
 add_filter('woocommerce_cart_item_quantity', 'wc_bundles_free_item_quantity_html', 20, 3);
@@ -54,6 +54,7 @@ function wc_bundles_free_item_quantity_html(string $html, string $key, array $it
 
 /**
  * Keep free items only while the paid products added with their bundle are in the cart, one free unit per complete set.
+ * Quantities follow the sets both ways; a free product the shopper removed has no line and stays out.
  * Only lines tagged by the bundle's own add-to-cart count; the same product added elsewhere does not.
  */
 add_action('woocommerce_before_calculate_totals', 'wc_bundles_sync_free_items');
@@ -79,9 +80,11 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
             $sets = wc_bundles_count_sets($cart, (int)$bundle_id);
             $free_ids = $sets ? wc_bundles_get_free_ids(wc_get_product($bundle_id)) : [];
             $remaining = [];
+            $first = [];
 
             foreach ($lines as $key => $item) {
                 $product_id = $item['product_id'];
+                $first[$product_id] ??= $key;
                 $remaining[$product_id] ??= in_array($product_id, $free_ids, true) ? $sets : 0;
                 $allowed = min($item['quantity'], $remaining[$product_id]);
                 $remaining[$product_id] -= $allowed;
@@ -94,6 +97,15 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
 
                 if (!$allowed) {
                     wc_add_notice(sprintf(__('%s was removed because its bundle is no longer complete.', 'wc-bundles'), $item['data']->get_name()), 'notice');
+                }
+            }
+
+            foreach ($first as $product_id => $key) {
+                $item = $cart->get_cart_item($key);
+                $quantity = $item ? $item['quantity'] + $remaining[$product_id] : 0;
+
+                if ($item && $remaining[$product_id] > 0 && !$item['data']->is_sold_individually() && $item['data']->has_enough_stock($quantity)) {
+                    $cart->set_quantity($key, $quantity, false);
                 }
             }
         }
