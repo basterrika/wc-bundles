@@ -40,6 +40,19 @@ function wc_bundles_free_item_price_html(string $html, array $item): string {
 }
 
 /**
+ * Free quantities are capped by the paid sets (see wc_bundles_sync_free_items), so the cart shows them as text instead of an input.
+ * Runs late to replace any stepper a theme wraps around the input.
+ */
+add_filter('woocommerce_cart_item_quantity', 'wc_bundles_free_item_quantity_html', 20, 3);
+function wc_bundles_free_item_quantity_html(string $html, string $key, array $item): string {
+    if (!isset($item['wc_bundles_free'])) {
+        return $html;
+    }
+
+    return sprintf('<span class="wc-bundles-free-quantity qty-label">%s: %d</span>', esc_html__('Qty', 'wc-bundles'), $item['quantity']);
+}
+
+/**
  * Keep free items only while the paid products added with their bundle are in the cart, one free unit per complete set.
  * Only lines tagged by the bundle's own add-to-cart count; the same product added elsewhere does not.
  */
