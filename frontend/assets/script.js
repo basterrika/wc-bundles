@@ -2,20 +2,11 @@
   'use strict';
 
   const bundle = document.querySelector('.wc-bundles');
-
-  if (!bundle || typeof wcBundles === 'undefined') {
-    return;
-  }
-
   const form = bundle.querySelector('.wc-bundles-cart');
   const total = bundle.querySelector('.wc-bundles-total-value');
   const retry = bundle.querySelector('.wc-bundles-retry');
   const count = bundle.querySelector('.wc-bundles-count');
   const hint = bundle.querySelector('.wc-bundles-hint[data-ready]');
-
-  if (!form || !total || !retry || !count || !hint) {
-    return;
-  }
 
   const initialTotal = total.innerHTML;
   const pendingHint = hint.textContent;
