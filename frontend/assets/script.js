@@ -47,6 +47,9 @@
   let controller;
   let lastSelection;
   let submitted = false;
+  let pending = false;
+  let purchasable = true;
+  let queued = null;
 
   function setHtml(element, html) {
     if (element.innerHTML !== html) {
@@ -126,9 +129,15 @@
       item.element.classList.toggle('has-error', error !== '');
     }
 
-    const done = ready === elements.length;
+    // Ready only once the server has confirmed the current selection as a whole
+    const done = ready === elements.length && !pending && purchasable;
+    total.setAttribute('aria-busy', String(pending));
     count.textContent = `${ready}/${elements.length}`;
-    hint.textContent = done ? hint.dataset.ready : pendingHint;
+    const checked = ready === elements.length && !pending;
+    hint.textContent = done ? hint.dataset.ready
+      : checked ? wcBundles.bundleUnavailable
+      : ready === elements.length ? wcBundles.checking
+      : pendingHint;
   }
 
   function setStatus(item, message) {
@@ -160,6 +169,7 @@
     lastSelection = key;
     controller?.abort();
     controller = null;
+    queued = null;
     retry.hidden = true;
 
     for (const item of items) {
@@ -169,6 +179,7 @@
       }
       setStatus(item, '');
     }
+    pending = Object.keys(selections).length > 0;
     render();
 
     if (!Object.keys(selections).length) {
@@ -225,6 +236,7 @@
         setStatus(item, selection.message);
       }
       setHtml(total, result.data.total_html);
+      purchasable = result.data.purchasable !== false;
     }
     catch (error) {
       if (controller !== request) {
@@ -244,7 +256,17 @@
     }
     finally {
       window.clearTimeout(timeout);
+      if (controller === request) {
+        pending = false;
+      }
       render();
+
+      // A submit made during the check goes through validation again now that the answer is in
+      if (queued && !pending) {
+        const {submitter} = queued;
+        queued = null;
+        form.requestSubmit(submitter?.isConnected ? submitter : undefined);
+      }
     }
   }
 
@@ -278,11 +300,19 @@
   function onSubmit(event) {
     const incomplete = items.filter(function needsWork(item) { return !isComplete(item); });
 
-    if (!incomplete.length) {
+    if (!incomplete.length && !pending && purchasable) {
       return;
     }
 
     event.preventDefault();
+
+    if (!incomplete.length) {
+      // The hint already says why; a pending check submits by itself once it passes
+      queued = pending ? {submitter: event.submitter} : null;
+      hint.scrollIntoView({block: 'nearest'});
+      return;
+    }
+
     submitted = true;
     render();
 

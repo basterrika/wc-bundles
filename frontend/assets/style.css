@@ -275,6 +275,10 @@
   text-align: end;
 }
 
+.wc-bundles-total-value[aria-busy="true"] {
+  opacity: 0.5;
+}
+
 .wc-bundles .wc-bundles-cart {
   display: flex;
   align-items: stretch;

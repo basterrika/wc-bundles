@@ -60,6 +60,8 @@ function wc_bundles_render_summary(): void {
             'bundleId' => $product->get_id(),
             'error' => __('Could not check availability. Please try again.', 'wc-bundles'),
             'unavailable' => __('This product is no longer available.', 'wc-bundles'),
+            'bundleUnavailable' => __('This bundle is currently unavailable.', 'wc-bundles'),
+            'checking' => __('Checking availability…', 'wc-bundles'),
             /* translators: %s: attribute name, e.g. size */
             'select' => __('Select %s', 'wc-bundles'),
             /* translators: %s: product name */

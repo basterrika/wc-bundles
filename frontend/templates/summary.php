@@ -21,7 +21,7 @@ defined('ABSPATH') || exit;
             <span class="wc-bundles-progress-label"><?php esc_html_e('Items selected', 'wc-bundles'); ?></span>
             <span class="wc-bundles-count" role="status"><?php echo esc_html($data['ready'] . '/' . count($data['items'])); ?></span>
         </div>
-        <p class="wc-bundles-hint wc-bundles-note" data-ready="<?php esc_attr_e('Your bundle is ready to add.', 'wc-bundles'); ?>"><?php esc_html_e('Choose the options for each product.', 'wc-bundles'); ?></p>
+        <p class="wc-bundles-hint wc-bundles-note" role="status" data-ready="<?php esc_attr_e('Your bundle is ready to add.', 'wc-bundles'); ?>"><?php esc_html_e('Choose the options for each product.', 'wc-bundles'); ?></p>
 
         <?php
     }
