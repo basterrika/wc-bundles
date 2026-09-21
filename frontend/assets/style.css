@@ -167,6 +167,9 @@
 }
 
 .wc-bundles .wc-bundles-attribute {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   min-width: 0;
   margin: 0 0 1.25rem;
   padding: 0;
@@ -182,21 +185,15 @@
   font-weight: 600;
 }
 
-.wc-bundles-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.wc-bundles-options:has(> :nth-child(3):last-child) {
+.wc-bundles-attribute:has(> label:nth-of-type(3)) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.wc-bundles-options:has(> :nth-child(4):last-child) {
+.wc-bundles-attribute:has(> label:nth-of-type(4)) {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.wc-bundles-options:has(> :nth-child(5)) {
+.wc-bundles-attribute:has(> label:nth-of-type(5)) {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 

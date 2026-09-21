@@ -36,22 +36,20 @@ defined('ABSPATH') || exit;
 
             <fieldset class="wc-bundles-attribute" data-attribute="<?php echo esc_attr($attribute['name']); ?>" data-label="<?php echo esc_attr($attribute['label']); ?>" aria-describedby="wc-bundles-status-<?php echo esc_attr($item['id']); ?>">
                 <legend class="wc-bundles-attribute-label"><?php echo esc_html($attribute['label']); ?>: <span class="wc-bundles-attribute-value"></span></legend>
-                <div class="wc-bundles-options">
-                    <?php
+                <?php
 
-                    foreach ($attribute['options'] as $option) {
-                        ?>
-
-                        <label class="wc-bundles-option">
-                            <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" required <?php checked($option['selected']); ?>>
-                            <?php echo esc_html($option['label']); ?>
-                        </label>
-
-                        <?php
-                    }
-
+                foreach ($attribute['options'] as $option) {
                     ?>
-                </div>
+
+                    <label class="wc-bundles-option">
+                        <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" required <?php checked($option['selected']); ?>>
+                        <?php echo esc_html($option['label']); ?>
+                    </label>
+
+                    <?php
+                }
+
+                ?>
             </fieldset>
 
             <?php
