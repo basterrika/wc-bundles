@@ -59,10 +59,17 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
     $target = wc_bundles_count_sets($cart, $bundle_id) + 1;
     $held = [];
 
+    // Attributes are part of a choice because "any" variations share one ID
+    $choice = static function (int $product_id, int $variation_id, array $variation): string {
+        ksort($variation);
+        return ($variation_id ?: $product_id) . wp_json_encode($variation);
+    };
+
     foreach ($before as $item) {
         foreach (['wc_bundles_paid', 'wc_bundles_free'] as $tag) {
             if ((int)($item[$tag] ?? 0) === $bundle_id) {
-                $held[$tag][$item['product_id']] = ($held[$tag][$item['product_id']] ?? 0) + $item['quantity'];
+                $key = $choice($item['product_id'], $item['variation_id'], $item['variation']);
+                $held[$tag][$key] = ($held[$tag][$key] ?? 0) + $item['quantity'];
             }
         }
     }
@@ -75,7 +82,8 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
         foreach ($components as $component) {
             $tag = $component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid';
 
-            if (($held[$tag][$component['product_id']] ?? 0) >= $target) {
+            // Lines don't record which set they belong to, so a spare is only certain when this exact choice outnumbers the complete sets
+            if (($held[$tag][$choice($component['product_id'], $component['variation_id'], $component['variation'])] ?? 0) >= $target) {
                 continue;
             }
 
