@@ -281,6 +281,11 @@
 
     syncSelections();
 
+    // Keyboard users keep their panel; arrowing through radios fires change on every step
+    if (event.target.matches(':focus-visible')) {
+      return;
+    }
+
     // Finishing an item moves on to the next one that still needs choices
     const item = items.find(function owns(candidate) { return candidate.element.contains(event.target); });
     if (item && isSelected(item)) {
