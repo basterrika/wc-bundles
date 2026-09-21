@@ -78,6 +78,9 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
     $listeners = $GLOBALS['wp_filter']['woocommerce_add_to_cart'] ?? null;
     unset($GLOBALS['wp_filter']['woocommerce_add_to_cart']);
 
+    // Quantity updates save the persistent cart too, which a rollback can't undo; the replayed events save it once instead
+    add_filter('woocommerce_persistent_cart_enabled', '__return_false', PHP_INT_MAX);
+
     try {
         foreach ($components as $component) {
             $tag = $component['free'] ? 'wc_bundles_free' : 'wc_bundles_paid';
@@ -108,6 +111,8 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
         throw $error;
     }
     finally {
+        remove_filter('woocommerce_persistent_cart_enabled', '__return_false', PHP_INT_MAX);
+
         if ($listeners) {
             $GLOBALS['wp_filter']['woocommerce_add_to_cart'] = $listeners;
         }
