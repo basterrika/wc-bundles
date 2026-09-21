@@ -192,7 +192,7 @@
       return;
     }
 
-    const body = new URLSearchParams({bundle_id: wcBundles.bundleId});
+    const body = new URLSearchParams({bundle_id: form.elements['add-to-cart'].value});
     for (const element of elements) {
       body.append('items[]', element.dataset.productId);
     }

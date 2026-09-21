@@ -57,7 +57,6 @@ function wc_bundles_render_summary(): void {
         wp_enqueue_script('wc-bundles-frontend');
         wp_localize_script('wc-bundles-frontend', 'wcBundles', [
             'url' => WC_AJAX::get_endpoint('wc_bundles_selection'),
-            'bundleId' => $product->get_id(),
             'variations' => array_filter(array_column($data['items'], 'variations', 'id')),
             'error' => __('Could not check availability. Please try again.', 'wc-bundles'),
             'unavailable' => __('This product is no longer available.', 'wc-bundles'),
