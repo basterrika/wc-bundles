@@ -27,21 +27,6 @@ defined('ABSPATH') || exit;
 
             ?>
         </span>
-        <span class="wc-bundles-item-price">
-            <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
-
-            <?php
-
-            if ($item['free']) {
-                ?>
-
-                <small class="wc-bundles-note"><?php esc_html_e('Free with this bundle', 'wc-bundles'); ?></small>
-
-                <?php
-            }
-
-            ?>
-        </span>
     </summary>
     <div class="wc-bundles-item-body">
         <?php
@@ -82,6 +67,11 @@ defined('ABSPATH') || exit;
 
         ?>
 
-        <a class="wc-bundles-details-link" href="<?php echo esc_url($item['url']); ?>" aria-label="<?php echo esc_attr(sprintf(__('View product details for %s', 'wc-bundles'), $item['name'])); ?>"><?php esc_html_e('Product details', 'wc-bundles'); ?></a>
+        <div class="wc-bundles-item-footer">
+            <a class="wc-bundles-details-link" href="<?php echo esc_url($item['url']); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr(sprintf(__('View full product page for %s (opens in a new tab)', 'wc-bundles'), $item['name'])); ?>"><?php esc_html_e('Full product page', 'wc-bundles'); ?></a>
+            <span class="wc-bundles-item-price">
+                <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
+            </span>
+        </div>
     </div>
 </details>

@@ -69,10 +69,10 @@
 
 .wc-bundles-item-header {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) fit-content(40%) 10px;
+  grid-template-columns: 56px minmax(0, 1fr) 10px;
   gap: 12px;
   align-items: start;
-  padding: 14px 14px 14px 12px;
+  padding: 10px 12px 10px 10px;
   line-height: 1.35;
   list-style: none;
   cursor: pointer;
@@ -100,8 +100,7 @@
 
 /* Where supported, the first line starts at its capitals, level with the thumbnail's top edge */
 @supports (text-box: trim-start cap alphabetic) {
-  .wc-bundles-item-title,
-  .wc-bundles-price {
+  .wc-bundles-item-title {
     text-box: trim-start cap alphabetic;
   }
 
@@ -123,8 +122,8 @@
   display: block;
   margin: 0;
   object-fit: cover;
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 4px;
 }
 
@@ -136,6 +135,19 @@
 
 .wc-bundles-item-title {
   font-weight: 600;
+}
+
+.wc-bundles-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.wc-bundles-item-footer:not(:first-child) {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--wc-bundles-border);
 }
 
 .wc-bundles-item-price {
@@ -151,7 +163,7 @@
 }
 
 .wc-bundles-item-body {
-  padding: 0 14px 16px 12px;
+  padding: 12px 12px 12px 10px;
 }
 
 .wc-bundles .wc-bundles-attribute {

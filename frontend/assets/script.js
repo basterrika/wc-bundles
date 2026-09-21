@@ -114,14 +114,26 @@
     for (const item of items) {
       const complete = isComplete(item);
       const error = item.message || (submitted && !complete ? wcBundles.choose.replace('%s', item.name) : '');
-      const labels = item.groups.map(function describe(group) {
+      const labels = [];
+      const missing = [];
+
+      for (const group of item.groups) {
         const input = group.querySelector(':checked');
         const value = input ? input.nextElementSibling.textContent : '';
         group.querySelector('.wc-bundles-attribute-value').textContent = value;
-        return input
-          ? `${group.dataset.label}: ${value}`
-          : wcBundles.select.replace('%s', group.dataset.label.toLocaleLowerCase());
-      });
+
+        if (input) {
+          labels.push(`${group.dataset.label}: ${value}`);
+        } else {
+          missing.push(group.dataset.label.toLocaleLowerCase());
+        }
+      }
+
+      if (missing.length) {
+        const last = missing.pop();
+        const list = missing.length ? wcBundles.and.replace('%1$s', missing.join(wcBundles.comma)).replace('%2$s', last) : last;
+        labels.push(wcBundles.select.replace('%s', list));
+      }
 
       ready += complete ? 1 : 0;
       item.summary.textContent = labels.join(' · ');

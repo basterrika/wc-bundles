@@ -62,8 +62,12 @@ function wc_bundles_render_summary(): void {
             'unavailable' => __('This product is no longer available.', 'wc-bundles'),
             'bundleUnavailable' => __('This bundle is currently unavailable.', 'wc-bundles'),
             'checking' => __('Checking availability…', 'wc-bundles'),
-            /* translators: %s: attribute name, e.g. size */
-            'select' => __('Select %s', 'wc-bundles'),
+            /* translators: %s: list of attribute names, e.g. size, color and sole */
+            'select' => __('Choose %s', 'wc-bundles'),
+            /* translators: separator between list items, e.g. size, color */
+            'comma' => __(', ', 'wc-bundles'),
+            /* translators: 1: list of attribute names, 2: last attribute name */
+            'and' => __('%1$s and %2$s', 'wc-bundles'),
             /* translators: %s: product name */
             'choose' => __('Choose the options for %s.', 'wc-bundles'),
         ]);
