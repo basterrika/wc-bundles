@@ -50,6 +50,7 @@ function wc_bundles_generate_image(int $bundle_id, array $item_ids): int|WP_Erro
     wp_raise_memory_limit('image');
 
     $canvas = imagecreatetruecolor($size, $size);
+    imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
     $rows = $layouts[count($files)];
     $row_height = intdiv($size, count($rows));
 
