@@ -102,10 +102,23 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
 
             foreach ($first as $product_id => $key) {
                 $item = $cart->get_cart_item($key);
-                $quantity = $item ? $item['quantity'] + $remaining[$product_id] : 0;
 
-                if ($item && $remaining[$product_id] > 0 && !$item['data']->is_sold_individually() && $item['data']->has_enough_stock($quantity)) {
-                    $cart->set_quantity($key, $quantity, false);
+                if (!$item || $remaining[$product_id] <= 0) {
+                    continue;
+                }
+
+                // Other lines can share this stock, and WooCommerce checks the total at checkout
+                $in_cart = $cart->get_cart_item_quantities()[$item['data']->get_stock_managed_by_id()] ?? 0;
+
+                if (!$item['data']->is_sold_individually() && $item['data']->has_enough_stock($in_cart + $remaining[$product_id])) {
+                    $cart->set_quantity($key, $item['quantity'] + $remaining[$product_id], false);
+                    continue;
+                }
+
+                $message = sprintf(__('Only %1$d × %2$s can be included free with your bundles.', 'wc-bundles'), $item['quantity'], $item['data']->get_name());
+
+                if (!wc_has_notice($message, 'notice')) {
+                    wc_add_notice($message, 'notice');
                 }
             }
         }
