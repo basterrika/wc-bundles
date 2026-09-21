@@ -202,9 +202,14 @@
 
 .wc-bundles .wc-bundles-option {
   position: relative;
-  display: block;
+  display: grid;
+  place-items: center;
+  min-height: 48px;
   margin: 0;
-  padding: 0;
+  padding: 4px 2px;
+  border: 1px solid var(--wc-bundles-border);
+  border-radius: 4px;
+  text-align: center;
   cursor: pointer;
 }
 
@@ -220,36 +225,25 @@
   white-space: nowrap;
 }
 
-.wc-bundles-option-label {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  min-height: 48px;
-  padding: 4px 2px;
-  border: 1px solid var(--wc-bundles-border);
-  border-radius: 4px;
-  text-align: center;
-}
-
-.wc-bundles-option-input:checked + .wc-bundles-option-label {
+.wc-bundles-option:has(> input:checked) {
   border-color: var(--wc-bundles-accent);
   background: var(--wc-bundles-accent);
   color: var(--wc-bundles-accent-text);
 }
 
-.wc-bundles-option-input:disabled + .wc-bundles-option-label {
+.wc-bundles-option:has(> input:disabled) {
   opacity: 0.45;
   text-decoration: line-through;
   cursor: default;
 }
 
 @media (hover: hover) {
-  .wc-bundles-option:hover .wc-bundles-option-input:not(:checked, :disabled) + .wc-bundles-option-label {
+  .wc-bundles-option:hover:has(> input:not(:checked, :disabled)) {
     border-color: currentColor;
   }
 }
 
-.wc-bundles-option-input:focus-visible + .wc-bundles-option-label {
+.wc-bundles-option:has(> input:focus-visible) {
   outline: 2px solid currentColor;
   outline-offset: 3px;
 }

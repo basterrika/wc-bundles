@@ -44,7 +44,7 @@ defined('ABSPATH') || exit;
 
                         <label class="wc-bundles-option">
                             <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" required <?php checked($option['selected']); ?>>
-                            <span class="wc-bundles-option-label"><?php echo esc_html($option['label']); ?></span>
+                            <?php echo esc_html($option['label']); ?>
                         </label>
 
                         <?php
