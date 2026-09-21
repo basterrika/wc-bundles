@@ -57,21 +57,9 @@ defined('ABSPATH') || exit;
                     foreach ($attribute['options'] as $option) {
                         ?>
 
-                        <label class="wc-bundles-option<?php echo $option['image_html'] ? ' wc-bundles-swatch' : ''; ?>">
-                            <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" data-label="<?php echo esc_attr($option['label']); ?>" required <?php checked($option['selected']); ?>>
-                            <span class="wc-bundles-option-label">
-                                <?php
-
-                                if ($option['image_html']) {
-                                    echo $option['image_html'];
-                                    echo '<span class="screen-reader-text">' . esc_html($option['label']) . '</span>';
-                                }
-                                else {
-                                    echo esc_html($option['label']);
-                                }
-
-                                ?>
-                            </span>
+                        <label class="wc-bundles-option">
+                            <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" required <?php checked($option['selected']); ?>>
+                            <span class="wc-bundles-option-label"><?php echo esc_html($option['label']); ?></span>
                         </label>
 
                         <?php

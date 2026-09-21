@@ -35,9 +35,14 @@ function wc_bundles_get_frontend_data(WC_Product $product): array {
         }
     }
 
-    // One query primes every variation's meta for wc_bundles_get_variation_map()
+    // One query primes every variation's meta for wc_bundles_get_in_stock_variations()
     if ($children) {
         update_meta_cache('post', array_merge(...$children));
+    }
+
+    // Two queries prime every item thumbnail instead of two per item
+    if ($image_ids = array_filter(array_map(static fn(WC_Product $item) => (int)$item->get_image_id(), $products))) {
+        _prime_post_caches($image_ids, false, true);
     }
 
     foreach ($products as $item) {
@@ -54,63 +59,32 @@ function wc_bundles_get_frontend_data(WC_Product $product): array {
         'has_options' => $has_options,
         // Items without options need no selection
         'ready' => count(array_filter($items, static fn(array $item) => !$item['attributes'])),
-        'available' => wc_bundles_is_complete($product),
+        'available' => wc_bundles_is_complete($product, $products),
         'form_action' => apply_filters('woocommerce_add_to_cart_form_action', $product->get_permalink()),
     ];
 }
 
 /**
- * Read in-stock variations and option images from post meta, without loading variation objects.
+ * Read in-stock variations from post meta, without loading variation objects.
  * Only a hint for the controls: the selection endpoint and the cart still validate through WooCommerce.
  *
  * @param list<string> $names Variation attribute meta keys, in display order.
  *
- * @return array{variations: list<list<string>>, images: array<string, array<string, int>>}
+ * @return list<list<string>>
  */
-function wc_bundles_get_variation_map(WC_Product_Variable $item, array $names): array {
+function wc_bundles_get_in_stock_variations(WC_Product_Variable $item, array $names): array {
     $variations = [];
-    $found = [];
 
     foreach ($item->get_visible_children() as $id) {
         $meta = get_post_meta($id);
-        $values = [];
-
-        foreach ($names as $name) {
-            $values[] = (string)($meta[$name][0] ?? '');
-        }
 
         // Prices are left to WooCommerce: filters can price a variation whose meta is empty, and wrongly disabling a buyable option is the worse mistake
         if (($meta['_stock_status'][0] ?? 'instock') !== 'outofstock') {
-            $variations[] = $values;
-        }
-
-        foreach ($names as $index => $name) {
-            if ($values[$index] !== '') {
-                $found[$name][$values[$index]][(int)($meta['_thumbnail_id'][0] ?? 0)] = true;
-            }
+            $variations[] = array_map(static fn(string $name) => (string)($meta[$name][0] ?? ''), $names);
         }
     }
 
-    $images = [];
-
-    // An attribute gets image swatches only when each of its options maps to one image and the options differ
-    foreach ($found as $name => $options) {
-        $ids = [];
-
-        foreach ($options as $value => $option_images) {
-            if (count($option_images) !== 1 || !key($option_images)) {
-                continue 2;
-            }
-
-            $ids[$value] = key($option_images);
-        }
-
-        if (count(array_unique($ids)) > 1) {
-            $images[$name] = $ids;
-        }
-    }
-
-    return ['variations' => $variations, 'images' => $images];
+    return $variations;
 }
 
 /**
@@ -122,7 +96,6 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
 
     if ($item->is_type('variable')) {
         $defaults = $item->get_default_attributes();
-        $rows = [];
 
         foreach ($item->get_attributes() as $attribute) {
             if (!$attribute->get_variation()) {
@@ -148,11 +121,10 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
                     'label' => (string)($is_taxonomy ? $option->name : $option),
                     // A single option is no choice to make
                     'selected' => count($options) === 1 || ($defaults[$key] ?? '') === $value,
-                    'image_html' => '',
                 ];
             }
 
-            $rows[] = [
+            $attributes[] = [
                 'name' => wc_variation_attribute_name($attribute->get_name()),
                 'label' => $is_taxonomy
                     ? ($attribute->get_taxonomy_object()->attribute_label ?? $attribute->get_name())
@@ -162,20 +134,7 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
             ];
         }
 
-        $map = wc_bundles_get_variation_map($item, array_column($rows, 'name'));
-        $variations = $map['variations'];
-
-        foreach ($rows as $row) {
-            foreach ($row['options'] as $index => $choice) {
-                $image_id = $map['images'][$row['name']][$choice['value']] ?? 0;
-
-                if ($image_id) {
-                    $row['options'][$index]['image_html'] = wp_get_attachment_image($image_id, 'woocommerce_gallery_thumbnail', false, ['alt' => '', 'loading' => 'lazy']);
-                }
-            }
-
-            $attributes[] = $row;
-        }
+        $variations = wc_bundles_get_in_stock_variations($item, array_column($attributes, 'name'));
     }
 
     return [

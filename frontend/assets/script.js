@@ -117,9 +117,10 @@
       const error = item.message || (submitted && !complete ? wcBundles.choose.replace('%s', item.name) : '');
       const labels = item.groups.map(function describe(group) {
         const input = group.querySelector(':checked');
-        group.querySelector('.wc-bundles-attribute-value').textContent = input ? input.dataset.label : '';
+        const value = input ? input.nextElementSibling.textContent : '';
+        group.querySelector('.wc-bundles-attribute-value').textContent = value;
         return input
-          ? `${group.dataset.label}: ${input.dataset.label}`
+          ? `${group.dataset.label}: ${value}`
           : wcBundles.select.replace('%s', group.dataset.label.toLocaleLowerCase());
       });
 
