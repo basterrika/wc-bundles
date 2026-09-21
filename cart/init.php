@@ -109,13 +109,24 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
 
                 // Other lines can share this stock, and WooCommerce checks the total at checkout
                 $in_cart = $cart->get_cart_item_quantities()[$item['data']->get_stock_managed_by_id()] ?? 0;
+                $add = $remaining[$product_id];
 
-                if (!$item['data']->is_sold_individually() && $item['data']->has_enough_stock($in_cart + $remaining[$product_id])) {
-                    $cart->set_quantity($key, $item['quantity'] + $remaining[$product_id], false);
+                if ($item['data']->is_sold_individually()) {
+                    $add = 0;
+                }
+                elseif (!$item['data']->has_enough_stock($in_cart + $add)) {
+                    $add = max(0, (int)$item['data']->get_stock_quantity() - $in_cart);
+                }
+
+                if ($add) {
+                    $cart->set_quantity($key, $item['quantity'] + $add, false);
+                }
+
+                if ($add >= $remaining[$product_id]) {
                     continue;
                 }
 
-                $message = sprintf(__('Only %1$d × %2$s can be included free with your bundles.', 'wc-bundles'), $item['quantity'], $item['data']->get_name());
+                $message = sprintf(__('Only %1$d × %2$s can be included free with your bundles.', 'wc-bundles'), $item['quantity'] + $add, $item['data']->get_name());
 
                 if (!wc_has_notice($message, 'notice')) {
                     wc_add_notice($message, 'notice');
