@@ -40,10 +40,6 @@ function wc_bundles_render_summary(): void {
     /** @var WC_Product $product Current product supplied by WooCommerce. */
     global $product;
 
-    if (!$product instanceof WC_Product || !$product->is_type('bundle')) {
-        return;
-    }
-
     require_once WC_BUNDLES_PLUGIN_PATH . 'frontend/data.php';
     $data = wc_bundles_get_frontend_data($product);
 
