@@ -38,7 +38,7 @@
       availability,
       name: element.querySelector('.wc-bundles-item-title').textContent,
       groups: Array.from(element.querySelectorAll('[data-attribute]')),
-      variations: JSON.parse(element.dataset.variations || '[]'),
+      variations: wcBundles.variations[element.dataset.productId] || [],
       initialThumbnail: thumbnail ? thumbnail.outerHTML : '',
       initialPrice: price.innerHTML,
       message: '',

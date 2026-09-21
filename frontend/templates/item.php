@@ -9,7 +9,7 @@ defined('ABSPATH') || exit;
 
 ?>
 
-<details class="wc-bundles-item" name="wc-bundles-item" data-product-id="<?php echo esc_attr($item['id']); ?>" <?php if ($item['variations']) : ?>data-variations="<?php echo esc_attr(wp_json_encode($item['variations'])); ?>"<?php endif; ?> <?php echo $item['open'] ? 'open' : ''; ?>>
+<details class="wc-bundles-item" name="wc-bundles-item" data-product-id="<?php echo esc_attr($item['id']); ?>" <?php echo $item['open'] ? 'open' : ''; ?>>
     <summary class="wc-bundles-item-header">
         <?php echo $item['thumbnail_html']; ?>
         <span>
