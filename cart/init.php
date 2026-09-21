@@ -184,8 +184,25 @@ add_action('woocommerce_checkout_create_order_line_item', 'wc_bundles_add_order_
 function wc_bundles_add_order_item_meta(WC_Order_Item_Product $item, string $key, array $values): void {
     if (isset($values['wc_bundles_free'])) {
         $item->add_meta_data(__('Free with', 'wc-bundles'), get_the_title($values['wc_bundles_free']), true);
+        $item->add_meta_data('_wc_bundles_free', (int)$values['wc_bundles_free'], true);
     }
     elseif (isset($values['wc_bundles_paid'])) {
         $item->add_meta_data(__('Part of', 'wc-bundles'), get_the_title($values['wc_bundles_paid']), true);
+        $item->add_meta_data('_wc_bundles_paid', (int)$values['wc_bundles_paid'], true);
     }
+}
+
+/**
+ * "Order again" re-tags bundle lines; the reordered cart then loads like a session, so free lines are priced and
+ * wc_bundles_sync_free_items drops any the bundle no longer grants.
+ */
+add_filter('woocommerce_order_again_cart_item_data', 'wc_bundles_order_again_item_data', 10, 2);
+function wc_bundles_order_again_item_data(array $data, WC_Order_Item $item): array {
+    foreach (['wc_bundles_paid', 'wc_bundles_free'] as $tag) {
+        if ($bundle_id = (int)$item->get_meta('_' . $tag)) {
+            $data[$tag] = $bundle_id;
+        }
+    }
+
+    return $data;
 }
