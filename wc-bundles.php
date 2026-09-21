@@ -11,6 +11,8 @@
  * Requires at least: 6.5
  * Domain Path: /translations
  * Requires Plugins: woocommerce
+ * WC requires at least: 8.7
+ * WC tested up to: 11.0
  */
 
 defined('ABSPATH') || exit;
