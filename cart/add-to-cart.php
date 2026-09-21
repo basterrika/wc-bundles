@@ -138,7 +138,7 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
     $products = wc_bundles_get_items($bundle);
     $ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
 
-    if (!wc_bundles_is_complete($bundle) || array_diff($ids, $expected) || array_diff($expected, $ids)) {
+    if (!wc_bundles_is_complete($bundle, $products) || array_diff($ids, $expected) || array_diff($expected, $ids)) {
         throw new Exception(__('This bundle has changed or contains unavailable products. Please reload its product page.', 'wc-bundles'));
     }
 

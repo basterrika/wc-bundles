@@ -52,10 +52,11 @@ function wc_bundles_get_items(WC_Product $product): array {
 
 /**
  * Check whether every product configured in the bundle is still available to buy.
+ *
+ * @param list<WC_Product> $items The bundle's items from wc_bundles_get_items(), so callers load them once.
  */
-function wc_bundles_is_complete(WC_Product $product): bool {
+function wc_bundles_is_complete(WC_Product $product, array $items): bool {
     $item_ids = array_merge(wc_bundles_get_item_ids($product), wc_bundles_get_free_ids($product));
-    $items = wc_bundles_get_items($product);
 
     if (!$item_ids || count($items) !== count($item_ids)) {
         return false;

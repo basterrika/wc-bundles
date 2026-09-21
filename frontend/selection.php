@@ -49,6 +49,8 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
     $products = wc_bundles_get_items($bundle);
     $ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
     $free_ids = wc_bundles_get_free_ids($bundle);
+    // Checked here, before resolved items leave $products
+    $complete = wc_bundles_is_complete($bundle, $products);
     $items = [];
     $selected_total = 0.0;
     $available = true;
@@ -96,7 +98,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
         $items[$product->get_id()] = $result;
     }
 
-    if (!wc_bundles_is_complete($bundle) || array_diff($displayed, $ids) || array_diff(array_keys($selections), $ids)) {
+    if (!$complete || array_diff($displayed, $ids) || array_diff(array_keys($selections), $ids)) {
         $available = false;
     }
 
