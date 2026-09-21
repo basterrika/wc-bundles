@@ -67,20 +67,9 @@ defined('ABSPATH') || exit;
 
     <form id="wc-bundles-cart" class="cart wc-bundles-cart" action="<?php echo esc_url($data['form_action']); ?>" method="post" enctype="multipart/form-data">
         <input type="hidden" name="add-to-cart" value="<?php echo esc_attr($product->get_id()); ?>">
+        <input type="hidden" name="wc_bundles_items" value="<?php echo esc_attr(implode(',', array_column($data['items'], 'id'))); ?>">
 
-        <?php
-
-        foreach ($data['items'] as $item) {
-            ?>
-
-            <input type="hidden" name="wc_bundles_items[]" value="<?php echo esc_attr($item['id']); ?>">
-
-            <?php
-        }
-
-        do_action('woocommerce_before_add_to_cart_button');
-
-        ?>
+        <?php do_action('woocommerce_before_add_to_cart_button'); ?>
 
         <button class="single_add_to_cart_button button alt wc-bundles-purchase" type="submit" <?php disabled(!$data['available']); ?>><?php esc_html_e('Add to cart', 'wc-bundles'); ?></button>
 
