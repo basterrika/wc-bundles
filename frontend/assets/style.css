@@ -206,14 +206,8 @@
 
 .wc-bundles .wc-bundles-option-input {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .wc-bundles-option:has(> input:checked) {
