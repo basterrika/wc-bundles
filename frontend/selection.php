@@ -98,7 +98,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
         $items[$product->get_id()] = $result;
     }
 
-    if (!$complete || array_diff($displayed, $ids) || array_diff(array_keys($selections), $ids)) {
+    if (!$complete || array_diff($displayed, $ids) || array_diff($ids, $displayed) || array_diff(array_keys($selections), $ids)) {
         $available = false;
     }
 

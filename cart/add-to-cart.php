@@ -143,7 +143,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
  * @throws Exception When the bundle or a selection is unavailable.
  */
 function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, array $expected): array {
-    if (!$bundle->is_type('bundle') || $bundle->get_status() !== 'publish' || post_password_required($bundle->get_id()) || !$bundle->is_in_stock()) {
+    if (!$bundle->is_type('bundle') || $bundle->get_status() !== 'publish' || post_password_required($bundle->get_id())) {
         throw new Exception(__('This bundle is no longer available.', 'wc-bundles'));
     }
 

@@ -51,14 +51,14 @@ function wc_bundles_get_items(WC_Product $product): array {
 }
 
 /**
- * Check whether every product configured in the bundle is still available to buy.
+ * Check whether the bundle is in stock and every product configured in it is still available to buy.
  *
  * @param list<WC_Product> $items The bundle's items from wc_bundles_get_items(), so callers load them once.
  */
 function wc_bundles_is_complete(WC_Product $product, array $items): bool {
     $item_ids = array_merge(wc_bundles_get_item_ids($product), wc_bundles_get_free_ids($product));
 
-    if (!$item_ids || count($items) !== count($item_ids)) {
+    if (!$item_ids || count($items) !== count($item_ids) || !$product->is_in_stock()) {
         return false;
     }
 
