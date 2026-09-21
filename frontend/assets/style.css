@@ -127,13 +127,8 @@
   border-radius: 4px;
 }
 
-.wc-bundles-item-title,
-.wc-bundles-price {
-  display: block;
-  font-size: 1em;
-}
-
 .wc-bundles-item-title {
+  display: block;
   font-weight: 600;
 }
 
@@ -150,7 +145,7 @@
   border-top: 1px solid var(--wc-bundles-border);
 }
 
-.wc-bundles-item-price {
+.wc-bundles-price {
   text-align: end;
 }
 

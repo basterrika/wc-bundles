@@ -67,9 +67,7 @@ defined('ABSPATH') || exit;
 
         <div class="wc-bundles-item-footer">
             <a class="wc-bundles-details-link" href="<?php echo esc_url($item['url']); ?>" target="_blank" rel="noopener" aria-label="<?php echo esc_attr(sprintf(__('View full product page for %s (opens in a new tab)', 'wc-bundles'), $item['name'])); ?>"><?php esc_html_e('Full product page', 'wc-bundles'); ?></a>
-            <span class="wc-bundles-item-price">
-                <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
-            </span>
+            <span class="wc-bundles-price<?php echo $item['free'] ? ' wc-bundles-free-price' : ''; ?>"><?php echo wc_bundles_kses_html($item['price_html']); ?></span>
         </div>
     </div>
 </details>
