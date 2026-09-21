@@ -96,6 +96,8 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
                 $cart->set_quantity($key, $allowed, false);
 
                 if (!$allowed) {
+                    // Only these automatic removals should follow a paid line's Undo.
+                    $cart->removed_cart_contents[$key]['wc_bundles_auto_removed'] = true;
                     wc_add_notice(sprintf(__('%s was removed because its bundle is no longer complete.', 'wc-bundles'), $item['data']->get_name()), 'notice');
                 }
             }
@@ -164,6 +166,7 @@ function wc_bundles_count_sets(WC_Cart $cart, int $bundle_id): int {
 // Restored lines get a fresh product object, so free ones need their zero price again
 add_action('woocommerce_restore_cart_item', 'wc_bundles_price_restored_item', 10, 2);
 function wc_bundles_price_restored_item(string $key, WC_Cart $cart): void {
+    unset($cart->cart_contents[$key]['wc_bundles_auto_removed']);
     // WooCommerce restores the line even when its product was deleted meanwhile
     if ($cart->cart_contents[$key]['data'] instanceof WC_Product) {
         $cart->cart_contents[$key] = wc_bundles_price_free_item($cart->cart_contents[$key]);
@@ -182,7 +185,7 @@ function wc_bundles_restore_free_items(string $key, WC_Cart $cart): void {
     }
 
     foreach ($cart->get_removed_cart_contents() as $removed_key => $item) {
-        if ((int)($item['wc_bundles_free'] ?? 0) === $bundle_id) {
+        if ((int)($item['wc_bundles_free'] ?? 0) === $bundle_id && !empty($item['wc_bundles_auto_removed']) && wc_get_product($item['variation_id'] ?: $item['product_id'])) {
             $cart->restore_cart_item($removed_key);
         }
     }
