@@ -84,8 +84,10 @@
 
     for (const group of item.groups) {
       for (const input of group.querySelectorAll('.wc-bundles-option-input')) {
+        const candidate = [...chosen, input.value];
+
         input.disabled = !item.variations.some(function offers(variation) {
-          return [...chosen, input.value].every(function matches(wanted, index) {
+          return candidate.every(function matches(wanted, index) {
             return variation[index] === '' || wanted === '' || variation[index] === wanted;
           });
         });
