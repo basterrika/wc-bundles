@@ -11,7 +11,7 @@
   const initialTotal = total.innerHTML;
   const pendingHint = hint.textContent;
   const elements = bundle.querySelectorAll('.wc-bundles-item');
-  const items = Array.from(elements, function prepareItem(element) {
+  const items = Array.from(elements, element => {
     const summary = element.querySelector('.wc-bundles-selection');
     const thumbnail = element.querySelector('.wc-bundles-thumbnail');
     const price = element.querySelector('.wc-bundles-price');
@@ -62,7 +62,7 @@
   }
 
   function isSelected(item) {
-    return item.groups.every(function hasChoice(group) { return group.querySelector(':checked'); });
+    return item.groups.every(group => group.querySelector(':checked'));
   }
 
   function isComplete(item) {
@@ -86,11 +86,11 @@
       for (const input of group.querySelectorAll('.wc-bundles-option-input')) {
         const candidate = [...chosen, input.value];
 
-        input.disabled = !item.variations.some(function offers(variation) {
-          return candidate.every(function matches(wanted, index) {
-            return variation[index] === '' || wanted === '' || variation[index] === wanted;
-          });
-        });
+        input.disabled = !item.variations.some(variation =>
+          candidate.every((wanted, index) =>
+            variation[index] === '' || wanted === '' || variation[index] === wanted
+          )
+        );
 
         if (input.disabled) {
           input.checked = false;
@@ -204,7 +204,7 @@
 
     const request = new AbortController();
     controller = request;
-    const timeout = window.setTimeout(function cancelSlowRequest() { request.abort(); }, 15000);
+    const timeout = window.setTimeout(() => request.abort(), 15000);
 
     try {
       const response = await fetch(wcBundles.url, {
@@ -276,7 +276,7 @@
   }
 
   function firstUnselected() {
-    return items.find(function needsChoice(item) { return !isSelected(item); });
+    return items.find(item => !isSelected(item));
   }
 
   function onSelectionChange(event) {
@@ -292,7 +292,7 @@
     }
 
     // Finishing an item moves on to the next one that still needs choices
-    const item = items.find(function owns(candidate) { return candidate.element.contains(event.target); });
+    const item = items.find(candidate => candidate.element.contains(event.target));
     if (item && isSelected(item)) {
       const next = firstUnselected();
       if (next) {
@@ -308,7 +308,7 @@
    * The button stays enabled; an incomplete bundle points at what is missing instead.
    */
   function onSubmit(event) {
-    const incomplete = items.filter(function needsWork(item) { return !isComplete(item); });
+    const incomplete = items.filter(item => !isComplete(item));
 
     if (!incomplete.length && !pending && purchasable) {
       return;
@@ -328,7 +328,7 @@
 
     const item = incomplete[0];
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const group = item.groups.find(function isEmpty(candidate) { return !candidate.querySelector(':checked'); }) || item.groups[0];
+    const group = item.groups.find(candidate => !candidate.querySelector(':checked')) || item.groups[0];
     item.element.open = true;
     item.element.scrollIntoView({block: 'center', behavior: reduce ? 'auto' : 'smooth'});
     group?.querySelector('.wc-bundles-option-input:not(:disabled)')?.focus({preventScroll: true});
@@ -344,11 +344,11 @@
 
   // Fail open: a map that rules out a whole attribute before any choice cannot be trusted
   for (const item of items) {
-    const unusable = item.groups.some(function isRuledOut(group, index) {
-      return !Array.from(group.querySelectorAll('.wc-bundles-option-input')).some(function isOffered(input) {
-        return item.variations.some(function offers(variation) { return variation[index] === '' || variation[index] === input.value; });
-      });
-    });
+    const unusable = item.groups.some((group, index) =>
+      !Array.from(group.querySelectorAll('.wc-bundles-option-input')).some(input =>
+        item.variations.some(variation => variation[index] === '' || variation[index] === input.value)
+      )
+    );
     if (unusable) {
       item.variations = [];
     }
