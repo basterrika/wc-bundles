@@ -76,36 +76,32 @@
   }
 
   /**
-   * Disable options that no buyable variation offers alongside the other choices.
+   * Disable options that no buyable variation offers alongside the choices in earlier groups.
+   *
+   * Only earlier groups constrain an option, so the first attribute always stays
+   * changeable and a new choice clears the later ones it rules out.
    */
   function refreshOptions(item) {
     if (!item.variations.length) {
       return;
     }
 
-    // A second pass settles options freed by a choice the first pass cleared
-    for (let pass = 0; pass < 2; pass++) {
-      const chosen = item.groups.map(function readChoice(group) { return group.querySelector(':checked')?.value ?? ''; });
-      let cleared = false;
+    const chosen = [];
 
-      item.groups.forEach(function refreshGroup(group, index) {
-        for (const input of group.querySelectorAll('.wc-bundles-option-input')) {
-          input.disabled = !item.variations.some(function offers(variation) {
-            return variation.every(function matches(value, other) {
-              const wanted = other === index ? input.value : chosen[other];
-              return value === '' || wanted === '' || value === wanted;
-            });
+    for (const group of item.groups) {
+      for (const input of group.querySelectorAll('.wc-bundles-option-input')) {
+        input.disabled = !item.variations.some(function offers(variation) {
+          return [...chosen, input.value].every(function matches(wanted, index) {
+            return variation[index] === '' || wanted === '' || variation[index] === wanted;
           });
-          if (input.disabled && input.checked) {
-            input.checked = false;
-            cleared = true;
-          }
-        }
-      });
+        });
 
-      if (!cleared) {
-        return;
+        if (input.disabled) {
+          input.checked = false;
+        }
       }
+
+      chosen.push(group.querySelector(':checked')?.value ?? '');
     }
   }
 
