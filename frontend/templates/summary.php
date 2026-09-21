@@ -26,17 +26,11 @@ defined('ABSPATH') || exit;
         <?php
     }
 
+    foreach ($data['items'] as $item) {
+        require WC_BUNDLES_PLUGIN_PATH . 'frontend/templates/item.php';
+    }
+
     ?>
-
-    <div class="wc-bundles-items">
-        <?php
-
-        foreach ($data['items'] as $item) {
-            require WC_BUNDLES_PLUGIN_PATH . 'frontend/templates/item.php';
-        }
-
-        ?>
-    </div>
 
     <div class="wc-bundles-total" role="status" aria-atomic="true">
         <span class="wc-bundles-total-label"><?php esc_html_e('Total', 'wc-bundles'); ?></span>

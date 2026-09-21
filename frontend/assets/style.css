@@ -45,14 +45,13 @@
   margin: 6px 0 12px;
 }
 
-.wc-bundles-items {
-  display: grid;
-  gap: 8px;
-}
-
 .wc-bundles-item {
   border: 1px solid var(--wc-bundles-border);
   border-radius: var(--wc-bundles-radius);
+}
+
+.wc-bundles-item + .wc-bundles-item {
+  margin-top: 8px;
 }
 
 .wc-bundles-item[open] {
