@@ -19,7 +19,6 @@ defined('ABSPATH') || exit;
 
 const WC_BUNDLES_VERSION = '1.0.2';
 
-define('WC_BUNDLES_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('WC_BUNDLES_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('WC_BUNDLES_PLUGIN_URL', plugin_dir_url(__FILE__));
 
