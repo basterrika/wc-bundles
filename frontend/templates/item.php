@@ -25,6 +25,14 @@ defined('ABSPATH') || exit;
                 <?php
             }
 
+            if ($item['free']) {
+                ?>
+
+                <span class="wc-bundles-free-badge"><?php esc_html_e('Free with this bundle', 'wc-bundles'); ?></span>
+
+                <?php
+            }
+
             ?>
         </span>
     </summary>
