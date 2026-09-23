@@ -52,13 +52,13 @@
   }
 
   function setThumbnail(item, thumbnail) {
-    if (!item.thumbnail || item.thumbnail.outerHTML === thumbnail) {
+    if (!item.thumbnail) {
       return;
     }
     const template = document.createElement('template');
     template.innerHTML = thumbnail;
     const next = template.content.querySelector('.wc-bundles-thumbnail');
-    if (next) {
+    if (next && !next.isEqualNode(item.thumbnail)) {
       item.thumbnail.replaceWith(next);
       item.thumbnail = next;
     }
