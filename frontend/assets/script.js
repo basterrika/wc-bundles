@@ -339,14 +339,6 @@
     group?.querySelector('.wc-bundles-option-input:not(:disabled)')?.focus({preventScroll: true});
   }
 
-  function retrySelection() {
-    syncSelections(true);
-  }
-
-  function restoreSelections(event) {
-    syncSelections(event.persisted);
-  }
-
   // Fail open: a map that rules out a whole attribute before any choice cannot be trusted
   for (const item of items) {
     const unusable = item.groups.some((group, index) =>
@@ -363,8 +355,8 @@
   form.noValidate = true;
   form.addEventListener('submit', onSubmit);
   bundle.addEventListener('change', onSelectionChange);
-  retry.addEventListener('click', retrySelection);
-  window.addEventListener('pageshow', restoreSelections);
+  retry.addEventListener('click', () => syncSelections(true));
+  window.addEventListener('pageshow', event => syncSelections(event.persisted));
 
   // pageshow can wait seconds for images; the controls should be right from the start
   syncSelections();
