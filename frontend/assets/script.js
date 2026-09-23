@@ -159,14 +159,15 @@
 
     for (const item of items) {
       refreshOptions(item);
-      if (isSelected(item)) {
+      const selected = isSelected(item);
+      if (selected) {
         const attributes = {};
         for (const group of item.groups) {
           attributes[group.dataset.attribute] = group.querySelector(':checked').value;
         }
         selections[item.element.dataset.productId] = attributes;
       }
-      item.selection = isSelected(item) ? JSON.stringify(selections[item.element.dataset.productId]) : '';
+      item.selection = selected ? JSON.stringify(selections[item.element.dataset.productId]) : '';
     }
 
     const key = JSON.stringify(selections);
