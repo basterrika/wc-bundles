@@ -113,10 +113,9 @@
 
       for (const group of item.groups) {
         const input = group.querySelector(':checked');
-        const value = input ? input.labels[0].textContent.trim() : '';
 
         if (input) {
-          labels.push(`${group.dataset.label}: ${value}`);
+          labels.push(input.labels[0].textContent.trim());
         } else {
           missing.push(group.dataset.label.toLocaleLowerCase());
         }
