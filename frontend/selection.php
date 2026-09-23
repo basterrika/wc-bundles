@@ -55,6 +55,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
     $selected_total = 0.0;
     $available = true;
     $ready = true;
+    $variations = [];
 
     foreach ($products as $index => $product) {
         if (!$product instanceof WC_Product_Variable) {
@@ -68,7 +69,20 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
             continue;
         }
 
-        $variation = is_array($selection) ? wc_bundles_resolve_variation($product, $selection) : null;
+        $variations[$index] = is_array($selection) ? wc_bundles_resolve_variation($product, $selection) : null;
+    }
+
+    $image_ids = [];
+    foreach ($variations as $index => $variation) {
+        array_push($image_ids, (int)$products[$index]->get_image_id(), ...($variation ? [(int)$variation->get_image_id(), ...$variation->get_gallery_image_ids()] : []));
+    }
+
+    if ($image_ids = array_filter($image_ids)) {
+        _prime_post_caches($image_ids, false, true);
+    }
+
+    foreach ($variations as $index => $variation) {
+        $product = $products[$index];
         $result = [
             'variation_id' => 0,
             'message' => __('This combination is unavailable. Choose different options.', 'wc-bundles'),
