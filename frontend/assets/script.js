@@ -4,6 +4,7 @@
   const bundle = document.querySelector('.wc-bundles');
   const form = bundle.querySelector('.wc-bundles-cart');
   const total = bundle.querySelector('.wc-bundles-total-value');
+  const errorNotice = bundle.querySelector('.wc-bundles-error');
   const retry = bundle.querySelector('.wc-bundles-retry');
   const count = bundle.querySelector('.wc-bundles-count');
   const hint = bundle.querySelector('.wc-bundles-hint[data-ready]');
@@ -175,7 +176,7 @@
     controller?.abort();
     controller = null;
     queued = null;
-    retry.hidden = true;
+    errorNotice.hidden = true;
 
     for (const item of items) {
       if (!selections[item.element.dataset.productId]) {
@@ -248,9 +249,9 @@
         return;
       }
 
-      total.textContent = wcBundles.error;
+      total.textContent = '—';
 
-      retry.hidden = false;
+      errorNotice.hidden = false;
       for (const item of items) {
         if (selections[item.element.dataset.productId]) {
           setHtml(item.price, item.initialPrice);

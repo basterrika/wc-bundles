@@ -50,7 +50,10 @@ defined('ABSPATH') || exit;
     if ($data['has_options']) {
         ?>
 
-        <button class="wc-bundles-retry" type="button" hidden><?php esc_html_e('Try again', 'wc-bundles'); ?></button>
+        <div class="wc-bundles-error" hidden>
+            <p class="wc-bundles-error-message" role="status"><?php esc_html_e('Could not check availability. Please try again.', 'wc-bundles'); ?></p>
+            <button class="wc-bundles-retry" type="button"><?php esc_html_e('Try again', 'wc-bundles'); ?></button>
+        </div>
 
         <?php
     }
