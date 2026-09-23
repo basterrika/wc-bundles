@@ -34,6 +34,8 @@
       initialThumbnail: thumbnail ? thumbnail.outerHTML : '',
       initialPrice: price.innerHTML,
       message: '',
+      selection: '',
+      confirmed: '',
     };
   }).filter(Boolean);
   let controller;
@@ -131,6 +133,7 @@
       item.summary.textContent = labels.join(' · ');
       item.availability.textContent = error;
       item.element.classList.toggle('has-error', error !== '');
+      item.element.classList.toggle('is-complete', complete && item.confirmed === item.selection);
     }
 
     // Ready only once the server has confirmed the current selection as a whole
@@ -163,6 +166,7 @@
         }
         selections[item.element.dataset.productId] = attributes;
       }
+      item.selection = isSelected(item) ? JSON.stringify(selections[item.element.dataset.productId]) : '';
     }
 
     const key = JSON.stringify(selections);
@@ -238,6 +242,7 @@
           setThumbnail(item, item.initialThumbnail);
         }
         setStatus(item, selection.message);
+        item.confirmed = selection.variation_id && !selection.message ? JSON.stringify(selections[id]) : '';
       }
       setHtml(total, result.data.total_html);
       purchasable = result.data.purchasable !== false;
