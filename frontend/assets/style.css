@@ -175,10 +175,6 @@
   padding: 0;
 }
 
-.wc-bundles-attribute-value {
-  font-weight: 600;
-}
-
 .wc-bundles-attribute:has(> label:nth-of-type(3)) {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

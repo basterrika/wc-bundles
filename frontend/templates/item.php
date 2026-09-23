@@ -35,7 +35,7 @@ defined('ABSPATH') || exit;
             ?>
 
             <fieldset class="wc-bundles-attribute" data-attribute="<?php echo esc_attr($attribute['name']); ?>" data-label="<?php echo esc_attr($attribute['label']); ?>" aria-describedby="wc-bundles-status-<?php echo esc_attr($item['id']); ?>">
-                <legend class="wc-bundles-attribute-label"><?php echo esc_html($attribute['label']); ?>: <span class="wc-bundles-attribute-value"></span></legend>
+                <legend class="wc-bundles-attribute-label"><?php echo esc_html($attribute['label']); ?></legend>
                 <?php
 
                 foreach ($attribute['options'] as $option) {
