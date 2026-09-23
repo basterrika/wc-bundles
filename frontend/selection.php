@@ -11,7 +11,7 @@
 defined('ABSPATH') || exit;
 
 /**
- * Read-only public pricing endpoint; no cart or product data is modified.
+ * Return prices, availability, and thumbnails for the selected bundle options.
  */
 function wc_bundles_send_selection(): void {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -28,7 +28,7 @@ function wc_bundles_send_selection(): void {
 
     $bundle = wc_get_product(absint($bundle_id));
 
-    if (!$bundle || !$bundle->is_type('bundle') || $bundle->get_status() !== 'publish' || post_password_required($bundle->get_id())) {
+    if (!$bundle || !$bundle->is_type('bundle') || ($bundle->get_status() !== 'publish' && !($bundle->get_status() === 'draft' && current_user_can('edit_post', $bundle->get_id()))) || post_password_required($bundle->get_id())) {
         wp_send_json_error(null, 404);
     }
 
