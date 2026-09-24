@@ -49,9 +49,9 @@ defined('ABSPATH') || exit;
                 foreach ($attribute['options'] as $option) {
                     ?>
 
-                    <label class="wc-bundles-option">
+                    <label class="wc-bundles-option<?php echo $option['color'] ? ' wc-bundles-swatch' : ''; ?>"<?php echo $option['color'] ? ' style="background-color: ' . esc_attr($option['color']) . '"' : ''; ?>>
                         <input class="wc-bundles-option-input" type="radio" form="wc-bundles-cart" name="<?php echo esc_attr($attribute['input_name']); ?>" value="<?php echo esc_attr($option['value']); ?>" required <?php checked($option['selected']); ?>>
-                        <?php echo esc_html($option['label']); ?>
+                        <?php echo $option['color'] ? '<span class="wc-bundles-swatch-label">' . esc_html($option['label']) . '</span>' : esc_html($option['label']); ?>
                     </label>
 
                     <?php

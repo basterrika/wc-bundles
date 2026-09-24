@@ -111,6 +111,10 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
                 continue;
             }
 
+            if ($is_taxonomy) {
+                update_termmeta_cache(wp_list_pluck($options, 'term_id'));
+            }
+
             $key = sanitize_title($attribute->get_name());
             $choices = [];
 
@@ -119,6 +123,7 @@ function wc_bundles_prepare_item(WC_Product $item, bool $free = false): array {
                 $choices[] = [
                     'value' => $value,
                     'label' => (string)($is_taxonomy ? $option->name : $option),
+                    'color' => $is_taxonomy ? (sanitize_hex_color((string)get_term_meta($option->term_id, 'wc_bundles_color', true)) ?: '') : '',
                     // A single option is no choice to make
                     'selected' => count($options) === 1 || ($defaults[$key] ?? '') === $value,
                 ];

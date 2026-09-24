@@ -3,6 +3,7 @@
 defined('ABSPATH') || exit;
 
 require_once WC_BUNDLES_PLUGIN_PATH . 'admin/product-image/register.php';
+require_once WC_BUNDLES_PLUGIN_PATH . 'admin/attribute-color/register.php';
 
 add_action('current_screen', 'wc_bundles_init_product_editor');
 function wc_bundles_init_product_editor(WP_Screen $screen): void {
