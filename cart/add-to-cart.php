@@ -15,7 +15,7 @@ function wc_bundles_submit_purchase(string|false $url): void {
         $displayed = $_POST['wc_bundles_items'] ?? [];
 
         if (!is_scalar($id) || !is_array($selections)) {
-            throw new Exception(__('Please reload the product page and try again.', 'wc-bundles'));
+            throw new Exception(__('Please reload the product page and try again.', 'wc-bundles')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
         }
 
         wc_bundles_add_to_cart(absint($id), wp_unslash($selections), wp_parse_id_list($displayed));
@@ -47,7 +47,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
     $cart = WC()->cart;
 
     if (!$bundle) {
-        throw new Exception(__('This bundle cannot be added to the cart.', 'wc-bundles'));
+        throw new Exception(__('This bundle cannot be added to the cart.', 'wc-bundles')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
     }
 
     $components = wc_bundles_validate_purchase($bundle, $selections, $displayed);
@@ -91,14 +91,15 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
             }
 
             if (!apply_filters('woocommerce_add_to_cart_validation', true, $component['product_id'], 1, $component['variation_id'], $component['variation'])) {
-                throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name']));
+                /* translators: %s: Product name. */
+                throw new Exception(sprintf(__('%s could not be added. The bundle was not added.', 'wc-bundles'), $component['name'])); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
             }
 
             $data = [$tag => $bundle_id];
             $key = $cart->add_to_cart($component['product_id'], 1, $component['variation_id'], $component['variation'], $data);
 
             if (!$key) {
-                throw new Exception(__('The complete bundle could not be added. Your previous cart has been kept.', 'wc-bundles'));
+                throw new Exception(__('The complete bundle could not be added. Your previous cart has been kept.', 'wc-bundles')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
             }
 
             $added[] = [$key, $component['product_id'], 1, $component['variation_id'], $cart->get_cart_item($key)['variation'], $data];
@@ -144,7 +145,7 @@ function wc_bundles_add_to_cart(int $bundle_id, array $selections, array $displa
  */
 function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, array $expected): array {
     if (!$bundle->is_type('bundle') || $bundle->get_status() !== 'publish' || post_password_required($bundle->get_id())) {
-        throw new Exception(__('This bundle is no longer available.', 'wc-bundles'));
+        throw new Exception(__('This bundle is no longer available.', 'wc-bundles')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
     }
 
     $free_ids = wc_bundles_get_free_ids($bundle);
@@ -152,7 +153,7 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
     $ids = array_map(static fn(WC_Product $product) => $product->get_id(), $products);
 
     if (!wc_bundles_is_complete($bundle, $products) || array_diff($ids, $expected) || array_diff($expected, $ids)) {
-        throw new Exception(__('This bundle has changed or contains unavailable products. Please reload its product page.', 'wc-bundles'));
+        throw new Exception(__('This bundle has changed or contains unavailable products. Please reload its product page.', 'wc-bundles')); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
     }
 
     $resolved = [];
@@ -168,7 +169,8 @@ function wc_bundles_validate_purchase(WC_Product $bundle, array $selections, arr
             $variation = $attributes ? wc_bundles_resolve_variation($product, $attributes) : null;
 
             if (!$variation?->variation_is_active()) {
-                throw new Exception(sprintf(__('Choose an available combination for %s.', 'wc-bundles'), $product->get_name()));
+                /* translators: %s: Product name. */
+                throw new Exception(sprintf(__('Choose an available combination for %s.', 'wc-bundles'), $product->get_name())); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Escaped when shown in wc_bundles_submit_purchase().
             }
 
             $variation_id = $variation->get_id();

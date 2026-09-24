@@ -98,6 +98,8 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
                 if (!$allowed) {
                     // Only these automatic removals should follow a paid line's Undo.
                     $cart->removed_cart_contents[$key]['wc_bundles_auto_removed'] = true;
+
+                    /* translators: %s: Product name. */
                     wc_add_notice(sprintf(__('%s was removed because its bundle is no longer complete.', 'wc-bundles'), $item['data']->get_name()), 'notice');
                 }
             }
@@ -128,6 +130,7 @@ function wc_bundles_sync_free_items(WC_Cart $cart): void {
                     continue;
                 }
 
+                /* translators: 1: Quantity available for free, 2: Product name. */
                 $message = sprintf(__('Only %1$d × %2$s can be included free with your bundles.', 'wc-bundles'), $item['quantity'] + $add, $item['data']->get_name());
 
                 if (!wc_has_notice($message, 'notice')) {
