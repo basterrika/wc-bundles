@@ -3,9 +3,9 @@
 defined('ABSPATH') || exit;
 
 /**
- * Sanitize bundle markup while preserving responsive images and price direction.
+ * Allowed bundle markup, including responsive images and price direction.
  */
-function wc_bundles_kses_html(string $html): string {
+function wc_bundles_allowed_html(): array {
     static $allowed_html = null;
 
     if ($allowed_html === null) {
@@ -16,7 +16,7 @@ function wc_bundles_kses_html(string $html): string {
         $allowed_html['bdi']['dir'] = true;
     }
 
-    return wp_kses($html, $allowed_html);
+    return $allowed_html;
 }
 
 /**

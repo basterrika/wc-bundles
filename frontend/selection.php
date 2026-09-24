@@ -97,8 +97,8 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
             $result = [
                 'variation_id' => $variation->get_id(),
                 // WooCommerce omits price_html when all variations share a price; the bundle always shows it
-                'price_html' => wc_bundles_kses_html($free ? wc_bundles_free_price_html($variation, (float)$data['display_price']) : ($data['price_html'] ?: $variation->get_price_html())),
-                'thumbnail_html' => wc_bundles_kses_html($variation->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy'])),
+                'price_html' => wp_kses($free ? wc_bundles_free_price_html($variation, (float)$data['display_price']) : ($data['price_html'] ?: $variation->get_price_html()), wc_bundles_allowed_html()),
+                'thumbnail_html' => wp_kses($variation->get_image('woocommerce_gallery_thumbnail', ['class' => 'wc-bundles-thumbnail', 'alt' => '', 'loading' => 'lazy']), wc_bundles_allowed_html()),
                 'message' => $in_stock ? '' : __('This combination is out of stock. Choose different options.', 'wc-bundles'),
             ];
             $selected_total += $free ? 0.0 : (float)$data['display_price'];
@@ -126,7 +126,7 @@ function wc_bundles_get_selection_data(WC_Product $bundle, array $selections, ar
         'items' => $items,
         'purchasable' => $available && $ready && $total !== null,
         'total_html' => $available
-            ? wc_bundles_kses_html(wc_bundles_format_total($total))
+            ? wp_kses(wc_bundles_format_total($total), wc_bundles_allowed_html())
             : esc_html__('Selection unavailable', 'wc-bundles'),
     ];
 }

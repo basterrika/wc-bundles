@@ -34,7 +34,7 @@ defined('ABSPATH') || exit;
 
     <div class="wc-bundles-total" role="status" aria-atomic="true">
         <span class="wc-bundles-total-label"><?php esc_html_e('Total', 'wc-bundles'); ?></span>
-        <span class="wc-bundles-total-value"><?php echo wc_bundles_kses_html($data['total_html']); ?></span>
+        <span class="wc-bundles-total-value"><?php echo wp_kses($data['total_html'], wc_bundles_allowed_html()); ?></span>
     </div>
 
     <?php
