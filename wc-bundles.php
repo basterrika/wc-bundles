@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bundles for WooCommerce
  * Description: Create and manage product bundles for WooCommerce.
- * Version: 1.0.3
+ * Version: 1.1.0
  * Author: Mikel
  * Author URI: https://basterrika.com
  * Update URI: https://github.com/basterrika/wc-bundles
@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-const WC_BUNDLES_VERSION = '1.0.3';
+const WC_BUNDLES_VERSION = '1.1.0';
 
 define('WC_BUNDLES_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('WC_BUNDLES_PLUGIN_URL', plugin_dir_url(__FILE__));
