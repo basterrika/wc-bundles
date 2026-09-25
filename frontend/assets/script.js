@@ -31,7 +31,7 @@
       name: element.querySelector('.wc-bundles-item-title').textContent,
       groups: Array.from(element.querySelectorAll('[data-attribute]')),
       variations: wcBundles.variations[element.dataset.productId] || [],
-      initialThumbnail: thumbnail ? thumbnail.outerHTML : '',
+      initialThumbnail: thumbnail,
       initialPrice: price.innerHTML,
       message: '',
       selection: '',
@@ -52,15 +52,28 @@
   }
 
   function setThumbnail(item, thumbnail) {
-    if (!item.thumbnail) {
+    if (!item.thumbnail || thumbnail === item.thumbnail) {
       return;
     }
-    const template = document.createElement('template');
-    template.innerHTML = thumbnail;
-    const next = template.content.querySelector('.wc-bundles-thumbnail');
-    if (next && !next.isEqualNode(item.thumbnail)) {
-      item.thumbnail.replaceWith(next);
-      item.thumbnail = next;
+
+    if (typeof thumbnail === 'string') {
+      const template = document.createElement('template');
+      template.innerHTML = thumbnail;
+      thumbnail = template.content.querySelector('.wc-bundles-thumbnail');
+
+      if (thumbnail?.isEqualNode(item.thumbnail)) {
+        return;
+      }
+
+      // Variations without an image of their own fall back to the parent's
+      if (thumbnail?.isEqualNode(item.initialThumbnail)) {
+        thumbnail = item.initialThumbnail;
+      }
+    }
+
+    if (thumbnail) {
+      item.thumbnail.replaceWith(thumbnail);
+      item.thumbnail = thumbnail;
     }
   }
 
