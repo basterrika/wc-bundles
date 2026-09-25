@@ -311,12 +311,6 @@
   transform: translate(-50%, 0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .wc-bundles-swatch-label {
-    transition: none;
-  }
-}
-
 .wc-bundles .wc-bundles-availability {
   margin: 0 0 0.75rem;
   color: var(--wc-bundles-error);
@@ -424,6 +418,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .wc-bundles-swatch-label,
   .wc-bundles-item-header::after {
     transition: none;
   }
