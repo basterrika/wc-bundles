@@ -29,8 +29,7 @@
   text-transform: uppercase;
 }
 
-.wc-bundles-count,
-.wc-bundles-total-label {
+.wc-bundles-count {
   font-weight: 600;
 }
 
@@ -349,11 +348,11 @@
 .wc-bundles-total-label,
 .wc-bundles-total-value {
   font-size: 1.25em;
+  font-weight: 600;
 }
 
 .wc-bundles-total-value {
   margin-inline-start: auto;
-  font-weight: 600;
   text-align: end;
 }
 
