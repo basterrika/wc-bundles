@@ -132,7 +132,7 @@
         if (input) {
           labels.push(input.labels[0].textContent.trim());
         } else {
-          missing.push(group.dataset.label.toLocaleLowerCase());
+          missing.push(group.querySelector('legend').textContent.toLocaleLowerCase());
         }
       }
 

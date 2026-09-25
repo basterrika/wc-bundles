@@ -42,7 +42,7 @@ defined('ABSPATH') || exit;
         foreach ($item['attributes'] as $attribute) {
             ?>
 
-            <fieldset class="wc-bundles-attribute" data-attribute="<?php echo esc_attr($attribute['name']); ?>" data-label="<?php echo esc_attr($attribute['label']); ?>" aria-describedby="wc-bundles-status-<?php echo esc_attr($item['id']); ?>">
+            <fieldset class="wc-bundles-attribute" data-attribute="<?php echo esc_attr($attribute['name']); ?>" aria-describedby="wc-bundles-status-<?php echo esc_attr($item['id']); ?>">
                 <legend class="wc-bundles-attribute-label"><?php echo esc_html($attribute['label']); ?></legend>
                 <?php
 
