@@ -42,7 +42,7 @@ defined('ABSPATH') || exit;
     if (!$data['available']) {
         ?>
 
-        <p class="wc-bundles-hint wc-bundles-unavailable" role="status"><?php esc_html_e('This bundle is currently unavailable.', 'wc-bundles'); ?></p>
+        <p class="wc-bundles-hint wc-bundles-unavailable"><?php esc_html_e('This bundle is currently unavailable.', 'wc-bundles'); ?></p>
 
         <?php
     }
