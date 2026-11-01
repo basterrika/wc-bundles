@@ -195,26 +195,41 @@ function wc_bundles_restore_free_items(string $key, WC_Cart $cart): void {
 }
 
 /**
- * Record the bundle on each order line so orders, emails and refunds show why a line is free or grouped.
+ * Record the bundle on each order line. The readable "Free with" / "Part of" line is built from it on display.
  */
 add_action('woocommerce_checkout_create_order_line_item', 'wc_bundles_add_order_item_meta', 10, 3);
 function wc_bundles_add_order_item_meta(WC_Order_Item_Product $item, string $key, array $values): void {
     if (isset($values['wc_bundles_free'])) {
-        $item->add_meta_data(__('Free with', 'wc-bundles'), get_the_title($values['wc_bundles_free']), true);
         $item->add_meta_data('_wc_bundles_free', (int)$values['wc_bundles_free'], true);
     }
     elseif (isset($values['wc_bundles_paid'])) {
-        $item->add_meta_data(__('Part of', 'wc-bundles'), get_the_title($values['wc_bundles_paid']), true);
         $item->add_meta_data('_wc_bundles_paid', (int)$values['wc_bundles_paid'], true);
     }
 }
 
 /**
- * The bundle IDs stay on the line for "Order again" but are noise on the admin order screen.
+ * Show why a line is free or grouped wherever order items are listed: admin, emails, thank-you page and account.
  */
-add_filter('woocommerce_hidden_order_itemmeta', 'wc_bundles_hidden_order_itemmeta');
-function wc_bundles_hidden_order_itemmeta(array $keys): array {
-    return array_merge($keys, ['_wc_bundles_paid', '_wc_bundles_free']);
+add_filter('woocommerce_order_item_get_formatted_meta_data', 'wc_bundles_order_item_bundle_meta', 10, 2);
+function wc_bundles_order_item_bundle_meta(array $meta, WC_Order_Item $item): array {
+    $free = (int)$item->get_meta('_wc_bundles_free');
+    $key = $free ? '_wc_bundles_free' : '_wc_bundles_paid';
+    $bundle_id = $free ?: (int)$item->get_meta($key);
+    $title = $bundle_id ? get_post_field('post_title', $bundle_id) : '';
+
+    if ($title === '') {
+        return $meta;
+    }
+
+    $row_id = key(wp_list_filter($meta, ['key' => $key])) ?? $key;
+    $meta[$row_id] = (object)[
+        'key' => $key,
+        'value' => $bundle_id,
+        'display_key' => $free ? __('Free with', 'wc-bundles') : __('Part of', 'wc-bundles'),
+        'display_value' => esc_html($title),
+    ];
+
+    return $meta;
 }
 
 /**
