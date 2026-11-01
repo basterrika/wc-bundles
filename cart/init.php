@@ -210,6 +210,14 @@ function wc_bundles_add_order_item_meta(WC_Order_Item_Product $item, string $key
 }
 
 /**
+ * The bundle IDs stay on the line for "Order again" but are noise on the admin order screen.
+ */
+add_filter('woocommerce_hidden_order_itemmeta', 'wc_bundles_hidden_order_itemmeta');
+function wc_bundles_hidden_order_itemmeta(array $keys): array {
+    return array_merge($keys, ['_wc_bundles_paid', '_wc_bundles_free']);
+}
+
+/**
  * "Order again" re-tags bundle lines; the reordered cart then loads like a session, so free lines are priced and
  * wc_bundles_sync_free_items drops any the bundle no longer grants.
  */
